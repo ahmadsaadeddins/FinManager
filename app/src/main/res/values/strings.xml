@@ -1,0 +1,76 @@
+<resources>
+    <string name="app_name">Financial Manager</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_inventory">Inventory</string>
+    <string name="nav_capital">Capital</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_people">People</string>
+    <string name="nav_reports">Reports</string>
+    <string name="nav_search">Search</string>
+    
+    <!-- Common -->
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+    <string name="export">Export</string>
+    <string name="share">Share</string>
+    
+    <!-- Inventory -->
+    <string name="inventory">Inventory</string>
+    <string name="add_item">Add Item</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="item_name">Item Name</string>
+    <string name="category">Category</string>
+    <string name="quantity">Quantity</string>
+    <string name="purchase_price">Purchase Price</string>
+    <string name="selling_price">Selling Price</string>
+    <string name="wholesale_price">Wholesale Price</string>
+    <string name="notes">Notes</string>
+    
+    <!-- Capital -->
+    <string name="capital">Capital</string>
+    <string name="add_capital">Add Capital Transaction</string>
+    <string name="amount">Amount</string>
+    <string name="source">Source</string>
+    <string name="date">Date</string>
+    <string name="description">Description</string>
+    <string name="type">Type</string>
+    <string name="investment">Investment</string>
+    <string name="withdrawal">Withdrawal</string>
+    
+    <!-- Transactions -->
+    <string name="transactions">Transactions</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="expense">Expense</string>
+    <string name="sale">Sale</string>
+    
+    <!-- People -->
+    <string name="people">People</string>
+    <string name="add_person">Add Person</string>
+    <string name="person_name">Name</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="balance">Balance</string>
+    <string name="they_owe_me">They Owe Me</string>
+    <string name="i_owe_them">I Owe Them</string>
+    
+    <!-- Reports -->
+    <string name="reports">Reports</string>
+    <string name="total_capital">Total Capital</string>
+    <string name="inventory_value">Inventory Value</string>
+    <string name="total_expenses">Total Expenses</string>
+    <string name="total_sales">Total Sales</string>
+    <string name="profit_loss">Profit/Loss</string>
+    
+    <!-- Messages -->
+    <string name="delete_confirmation">Are you sure you want to delete this item?</string>
+    <string name="export_success">Data exported successfully</string>
+    <string name="export_failed">Failed to export data</string>
+</resources>
+

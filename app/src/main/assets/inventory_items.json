@@ -1,0 +1,425 @@
+[
+  {
+    "name": "هارد 500 PC",
+    "quantity": 1,
+    "purchasePrice": 200.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "hdd 4tb",
+    "quantity": 1,
+    "purchasePrice": 3500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "هارد 500 lap",
+    "quantity": 1,
+    "purchasePrice": 500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "هارد 250 PC",
+    "quantity": 20,
+    "purchasePrice": 100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "هارد 128 ssd",
+    "quantity": 4,
+    "purchasePrice": 550.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "هارد 240 ssd",
+    "quantity": 2,
+    "purchasePrice": 1100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "هارد 1 تيرا",
+    "quantity": 1,
+    "purchasePrice": 1300.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "psu 600 xfx",
+    "quantity": 1,
+    "purchasePrice": 1500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "رام 2 جيجا ddr3",
+    "quantity": 15,
+    "purchasePrice": 100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "ram 4 ddr3",
+    "quantity": 15,
+    "purchasePrice": 250.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "ram 8 ddr3",
+    "quantity": 2,
+    "purchasePrice": 500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "lap i5 2th hdd320 ram 4 بدون شاحن بدون بطاريه",
+    "quantity": 1,
+    "purchasePrice": 1500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "مروحه تربو",
+    "quantity": 1,
+    "purchasePrice": 160.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "case i3 1st",
+    "quantity": 1,
+    "purchasePrice": 1100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "case 2g dual hp tw",
+    "quantity": 1,
+    "purchasePrice": 200.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "19",
+    "quantity": 1,
+    "purchasePrice": 400.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "vga k620 2gb",
+    "quantity": 2,
+    "purchasePrice": 1100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "lap i5 2nd 8 320 128",
+    "quantity": 1,
+    "purchasePrice": 2800.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "كادى",
+    "quantity": 4,
+    "purchasePrice": 50.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "كبل بور لاب استيراد",
+    "quantity": 2,
+    "purchasePrice": 40.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "شعبى  سماعه",
+    "quantity": 1,
+    "purchasePrice": 85.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "سماعه",
+    "quantity": 2,
+    "purchasePrice": 200.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "ماوس",
+    "quantity": 1,
+    "purchasePrice": 40.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "كيبورد استيراد",
+    "quantity": 4,
+    "purchasePrice": 75.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "ماوس ويرلس",
+    "quantity": 1,
+    "purchasePrice": 170.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "ماوس استيراد",
+    "quantity": 3,
+    "purchasePrice": 65.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "3 كيس",
+    "quantity": 1,
+    "purchasePrice": 1500.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "دراغ",
+    "quantity": 1,
+    "purchasePrice": 185.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "باد ماوس",
+    "quantity": 1,
+    "purchasePrice": 25.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "انتنه",
+    "quantity": 1,
+    "purchasePrice": 120.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "فلاشه 4",
+    "quantity": 2,
+    "purchasePrice": 95.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "فلاشه 8",
+    "quantity": 1,
+    "purchasePrice": 110.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "فلاشه 16",
+    "quantity": 2,
+    "purchasePrice": 120.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "فلاشه 32",
+    "quantity": 2,
+    "purchasePrice": 145.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "فلاشه 64",
+    "quantity": 1,
+    "purchasePrice": 250.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "باد ماوس",
+    "quantity": 3,
+    "purchasePrice": 80.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "dvi vga",
+    "quantity": 1,
+    "purchasePrice": 80.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "dp to hdmi",
+    "quantity": 1,
+    "purchasePrice": 75.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "dp to vga",
+    "quantity": 1,
+    "purchasePrice": 100.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "chager lap",
+    "quantity": 5,
+    "purchasePrice": 200.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "cable dvi",
+    "quantity": 3,
+    "purchasePrice": 35.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "kb white",
+    "quantity": 3,
+    "purchasePrice": 55.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "hdmi",
+    "quantity": 2,
+    "purchasePrice": 40.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "hdmi to vga",
+    "quantity": 1,
+    "purchasePrice": 50.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "vga",
+    "quantity": 2,
+    "purchasePrice": 55.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "دراغ عادي",
+    "quantity": 1,
+    "purchasePrice": 135.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  },
+  {
+    "name": "usb 3",
+    "quantity": 1,
+    "purchasePrice": 120.0,
+    "category": null,
+    "sellingPrice": 0.0,
+    "wholesalePrice": 0.0,
+    "notes": null
+  }
+]
