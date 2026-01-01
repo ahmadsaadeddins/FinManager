@@ -9,7 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -197,9 +202,9 @@ fun PersonDialog(
     onDismiss: () -> Unit,
     onSave: (PersonAccount) -> Unit
 ) {
-    var name by remember { mutableStateOf(person?.name ?: "") }
-    var phone by remember { mutableStateOf(person?.phone ?: "") }
-    var email by remember { mutableStateOf(person?.email ?: "") }
+    var name by remember { mutableStateOf(TextFieldValue(person?.name ?: "")) }
+    var phone by remember { mutableStateOf(TextFieldValue(person?.phone ?: "")) }
+    var email by remember { mutableStateOf(TextFieldValue(person?.email ?: "")) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -215,21 +220,40 @@ fun PersonDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Name") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && name.text.isNotEmpty()) {
+                                name = name.copy(selection = TextRange(0, name.text.length))
+                            }
+                        },
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
                     label = { Text("Phone") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && phone.text.isNotEmpty()) {
+                                phone = phone.copy(selection = TextRange(0, phone.text.length))
+                            }
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && email.text.isNotEmpty()) {
+                                email = email.copy(selection = TextRange(0, email.text.length))
+                            }
+                        },
                     singleLine = true
                 )
             }
@@ -239,9 +263,9 @@ fun PersonDialog(
                 onClick = {
                     val newPerson = PersonAccount(
                         id = person?.id ?: 0,
-                        name = name,
-                        phone = phone.ifBlank { null },
-                        email = email.ifBlank { null }
+                        name = name.text,
+                        phone = phone.text.ifBlank { null },
+                        email = email.text.ifBlank { null }
                     )
                     onSave(newPerson)
                 }

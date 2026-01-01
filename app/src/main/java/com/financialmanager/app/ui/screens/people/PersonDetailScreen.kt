@@ -9,7 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -241,9 +246,9 @@ fun PersonTransactionDialog(
     onDismiss: () -> Unit,
     onSave: (PersonTransaction) -> Unit
 ) {
-    var amount by remember { mutableStateOf(transaction?.amount?.toString() ?: "") }
-    var category by remember { mutableStateOf(transaction?.category ?: "") }
-    var description by remember { mutableStateOf(transaction?.description ?: "") }
+    var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
+    var category by remember { mutableStateOf(TextFieldValue(transaction?.category ?: "")) }
+    var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
     var type by remember { mutableStateOf(transaction?.type ?: "they_owe_me") }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
 
@@ -261,14 +266,27 @@ fun PersonTransactionDialog(
                     value = amount,
                     onValueChange = { amount = it },
                     label = { Text("Amount") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && amount.text.isNotEmpty()) {
+                                amount = amount.copy(selection = TextRange(0, amount.text.length))
+                            }
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
                     label = { Text("Category") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && category.text.isNotEmpty()) {
+                                category = category.copy(selection = TextRange(0, category.text.length))
+                            }
+                        },
                     singleLine = true
                 )
                 Row {
@@ -287,7 +305,13 @@ fun PersonTransactionDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && description.text.isNotEmpty()) {
+                                description = description.copy(selection = TextRange(0, description.text.length))
+                            }
+                        },
                     maxLines = 3
                 )
             }
@@ -298,11 +322,11 @@ fun PersonTransactionDialog(
                     val newTransaction = PersonTransaction(
                         id = transaction?.id ?: 0,
                         personId = personId,
-                        amount = amount.toDoubleOrNull() ?: 0.0,
+                        amount = amount.text.toDoubleOrNull() ?: 0.0,
                         date = date,
-                        description = description.ifBlank { null },
+                        description = description.text.ifBlank { null },
                         type = type,
-                        category = category.ifBlank { null }
+                        category = category.text.ifBlank { null }
                     )
                     onSave(newTransaction)
                 }

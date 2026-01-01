@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.financialmanager.app.ui.screens.backup.BackupScreen
 import com.financialmanager.app.ui.screens.capital.CapitalScreen
 import com.financialmanager.app.ui.screens.home.HomeScreen
 import com.financialmanager.app.ui.screens.inventory.InventoryScreen
@@ -24,6 +25,7 @@ sealed class Screen(val route: String) {
     }
     object Reports : Screen("reports")
     object Search : Screen("search")
+    object Backup : Screen("backup")
 }
 
 @Composable
@@ -59,6 +61,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Search.route) {
             SearchScreen(navController = navController)
+        }
+        composable(Screen.Backup.route) {
+            BackupScreen(navController = navController)
         }
     }
 }

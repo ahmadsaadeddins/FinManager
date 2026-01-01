@@ -10,7 +10,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -240,13 +245,13 @@ fun TransactionDialog(
     onDismiss: () -> Unit,
     onSave: (OutTransaction) -> Unit
 ) {
-    var amount by remember { mutableStateOf(transaction?.amount?.toString() ?: "") }
-    var category by remember { mutableStateOf(transaction?.category ?: "") }
-    var description by remember { mutableStateOf(transaction?.description ?: "") }
+    var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
+    var category by remember { mutableStateOf(TextFieldValue(transaction?.category ?: "")) }
+    var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
     var type by remember { mutableStateOf(transaction?.type ?: "expense") }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
     var selectedItemId by remember { mutableStateOf<Long?>(transaction?.relatedItemId) }
-    var quantity by remember { mutableStateOf(transaction?.quantity?.toString() ?: "1") }
+    var quantity by remember { mutableStateOf(TextFieldValue(transaction?.quantity?.toString() ?: "1")) }
     var showItemSelector by remember { mutableStateOf(false) }
     var itemSearchQuery by remember { mutableStateOf("") }
     
@@ -279,14 +284,27 @@ fun TransactionDialog(
                     value = amount,
                     onValueChange = { amount = it },
                     label = { Text("Amount") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && amount.text.isNotEmpty()) {
+                                amount = amount.copy(selection = TextRange(0, amount.text.length))
+                            }
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
                     label = { Text("Category") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && category.text.isNotEmpty()) {
+                                category = category.copy(selection = TextRange(0, category.text.length))
+                            }
+                        },
                     singleLine = true
                 )
                 Row {
@@ -332,30 +350,36 @@ fun TransactionDialog(
                                 onValueChange = { 
                                     quantity = it
                                     // Auto-calculate amount: quantity * wholesale price
-                                    val qty = it.toIntOrNull() ?: 1
+                                    val qty = it.text.toIntOrNull() ?: 1
                                     val totalAmount = qty * selectedItem.wholesalePrice
-                                    amount = totalAmount.toString()
+                                    amount = TextFieldValue(totalAmount.toString())
                                 },
                                 label = { Text("Quantity") },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .onFocusChanged { focusState ->
+                                        if (focusState.isFocused && quantity.text.isNotEmpty()) {
+                                            quantity = quantity.copy(selection = TextRange(0, quantity.text.length))
+                                        }
+                                    },
                                 singleLine = true,
                                 supportingText = {
                                     Text("Available: ${selectedItem.quantity}")
                                 },
-                                isError = (quantity.toIntOrNull() ?: 0) > selectedItem.quantity
+                                isError = (quantity.text.toIntOrNull() ?: 0) > selectedItem.quantity
                             )
                         }
                         
                         LaunchedEffect(selectedItem.id) {
                             // Auto-fill description from selected item (only when item changes)
-                            if (description.isEmpty() || description == transaction?.description) {
-                                description = selectedItem.name
+                            if (description.text.isEmpty() || description.text == transaction?.description) {
+                                description = TextFieldValue(selectedItem.name)
                             }
                             // Auto-calculate amount: quantity * wholesale price
-                            val qty = quantity.toIntOrNull() ?: 1
+                            val qty = quantity.text.toIntOrNull() ?: 1
                             val totalAmount = qty * selectedItem.wholesalePrice
-                            if (amount.isEmpty() || amount == "0.0" || transaction == null) {
-                                amount = totalAmount.toString()
+                            if (amount.text.isEmpty() || amount.text == "0.0" || transaction == null) {
+                                amount = TextFieldValue(totalAmount.toString())
                             }
                         }
                     }
@@ -365,7 +389,13 @@ fun TransactionDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && description.text.isNotEmpty()) {
+                                description = description.copy(selection = TextRange(0, description.text.length))
+                            }
+                        },
                     maxLines = 3
                 )
             }
@@ -375,13 +405,13 @@ fun TransactionDialog(
                 onClick = {
                     val newTransaction = OutTransaction(
                         id = transaction?.id ?: 0,
-                        amount = amount.toDoubleOrNull() ?: 0.0,
-                        category = category.ifBlank { null },
+                        amount = amount.text.toDoubleOrNull() ?: 0.0,
+                        category = category.text.ifBlank { null },
                         date = date,
-                        description = description.ifBlank { null },
+                        description = description.text.ifBlank { null },
                         type = type,
                         relatedItemId = if (type == "sale") selectedItemId else null,
-                        quantity = if (type == "sale") quantity.toIntOrNull() ?: 1 else 1
+                        quantity = if (type == "sale") quantity.text.toIntOrNull() ?: 1 else 1
                     )
                     onSave(newTransaction)
                 }

@@ -44,6 +44,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
         }
     }
 }
@@ -114,6 +115,12 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
     implementation(libs.camerax.camera2)
+    
+    // Google Sign-In and Drive API
+    implementation(libs.google.signin)
+    implementation(libs.google.drive.api)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.http.client.gson)
     
     // Testing
     testImplementation(libs.junit)

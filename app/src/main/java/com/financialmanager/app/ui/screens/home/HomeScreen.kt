@@ -86,6 +86,9 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Financial Manager") },
                 actions = {
+                    IconButton(onClick = { navController.navigate(Screen.Backup.route) }) {
+                        Icon(Icons.Default.CloudUpload, contentDescription = "Backup")
+                    }
                     IconButton(onClick = { navController.navigate(Screen.Search.route) }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }

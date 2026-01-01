@@ -1,7 +1,6 @@
 package com.financialmanager.app.di
 
 import android.content.Context
-import androidx.room.Room
 import com.financialmanager.app.data.dao.*
 import com.financialmanager.app.data.database.AppDatabase
 import dagger.Module
@@ -18,13 +17,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "financial_manager_database"
-        )
-        .fallbackToDestructiveMigration() // For development - removes data on schema change
-        .build()
+        return AppDatabase.getInstance(context)
     }
 
     @Provides
@@ -39,4 +32,3 @@ object DatabaseModule {
     @Provides
     fun providePersonDao(database: AppDatabase): PersonDao = database.personDao()
 }
-

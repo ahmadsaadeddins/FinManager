@@ -9,7 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -211,9 +216,9 @@ fun CapitalTransactionDialog(
     onDismiss: () -> Unit,
     onSave: (CapitalTransaction) -> Unit
 ) {
-    var amount by remember { mutableStateOf(transaction?.amount?.toString() ?: "") }
-    var source by remember { mutableStateOf(transaction?.source ?: "") }
-    var description by remember { mutableStateOf(transaction?.description ?: "") }
+    var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
+    var source by remember { mutableStateOf(TextFieldValue(transaction?.source ?: "")) }
+    var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
     var type by remember { mutableStateOf(transaction?.type ?: "investment") }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
 
@@ -231,14 +236,27 @@ fun CapitalTransactionDialog(
                     value = amount,
                     onValueChange = { amount = it },
                     label = { Text("Amount") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && amount.text.isNotEmpty()) {
+                                amount = amount.copy(selection = TextRange(0, amount.text.length))
+                            }
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
                 OutlinedTextField(
                     value = source,
                     onValueChange = { source = it },
                     label = { Text("Source") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && source.text.isNotEmpty()) {
+                                source = source.copy(selection = TextRange(0, source.text.length))
+                            }
+                        },
                     singleLine = true
                 )
                 Row {
@@ -257,7 +275,13 @@ fun CapitalTransactionDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && description.text.isNotEmpty()) {
+                                description = description.copy(selection = TextRange(0, description.text.length))
+                            }
+                        },
                     maxLines = 3
                 )
             }
@@ -267,10 +291,10 @@ fun CapitalTransactionDialog(
                 onClick = {
                     val newTransaction = CapitalTransaction(
                         id = transaction?.id ?: 0,
-                        amount = amount.toDoubleOrNull() ?: 0.0,
-                        source = source,
+                        amount = amount.text.toDoubleOrNull() ?: 0.0,
+                        source = source.text,
                         date = date,
-                        description = description.ifBlank { null },
+                        description = description.text.ifBlank { null },
                         type = type
                     )
                     onSave(newTransaction)

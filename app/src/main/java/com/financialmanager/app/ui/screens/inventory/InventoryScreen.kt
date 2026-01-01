@@ -11,7 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -282,16 +287,73 @@ fun InventoryItemDialog(
     onDismiss: () -> Unit,
     onSave: (InventoryItem) -> Unit
 ) {
-    var name by remember { mutableStateOf(item?.name ?: "") }
-    var category by remember { mutableStateOf(item?.category ?: "") }
-    var quantity by remember { mutableStateOf(item?.quantity?.toString() ?: "0") }
-    var purchasePrice by remember { mutableStateOf(item?.purchasePrice?.toString() ?: "0.0") }
-    var sellingPrice by remember { mutableStateOf(item?.sellingPrice?.toString() ?: "0.0") }
-    var wholesalePrice by remember { mutableStateOf(item?.wholesalePrice?.toString() ?: "0.0") }
-    var barcode by remember { mutableStateOf(item?.barcode ?: "") }
-    var notes by remember { mutableStateOf(item?.notes ?: "") }
+    var name by remember { mutableStateOf(TextFieldValue(item?.name ?: "")) }
+    var category by remember { mutableStateOf(TextFieldValue(item?.category ?: "")) }
+    var quantity by remember { mutableStateOf(TextFieldValue(item?.quantity?.toString() ?: "0")) }
+    var purchasePrice by remember { mutableStateOf(TextFieldValue(item?.purchasePrice?.toString() ?: "0.0")) }
+    var sellingPrice by remember { mutableStateOf(TextFieldValue(item?.sellingPrice?.toString() ?: "0.0")) }
+    var wholesalePrice by remember { mutableStateOf(TextFieldValue(item?.wholesalePrice?.toString() ?: "0.0")) }
+    var barcode by remember { mutableStateOf(TextFieldValue(item?.barcode ?: "")) }
+    var notes by remember { mutableStateOf(TextFieldValue(item?.notes ?: "")) }
+    
+    var nameFocused by remember { mutableStateOf(false) }
+    var categoryFocused by remember { mutableStateOf(false) }
+    var quantityFocused by remember { mutableStateOf(false) }
+    var purchasePriceFocused by remember { mutableStateOf(false) }
+    var sellingPriceFocused by remember { mutableStateOf(false) }
+    var wholesalePriceFocused by remember { mutableStateOf(false) }
+    var barcodeFocused by remember { mutableStateOf(false) }
+    var notesFocused by remember { mutableStateOf(false) }
     
     var showBarcodeScanner by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(nameFocused) {
+        if (nameFocused && name.text.isNotEmpty()) {
+            name = name.copy(selection = TextRange(0, name.text.length))
+        }
+    }
+    
+    LaunchedEffect(categoryFocused) {
+        if (categoryFocused && category.text.isNotEmpty()) {
+            category = category.copy(selection = TextRange(0, category.text.length))
+        }
+    }
+    
+    LaunchedEffect(quantityFocused) {
+        if (quantityFocused && quantity.text.isNotEmpty()) {
+            quantity = quantity.copy(selection = TextRange(0, quantity.text.length))
+        }
+    }
+    
+    LaunchedEffect(purchasePriceFocused) {
+        if (purchasePriceFocused && purchasePrice.text.isNotEmpty()) {
+            purchasePrice = purchasePrice.copy(selection = TextRange(0, purchasePrice.text.length))
+        }
+    }
+    
+    LaunchedEffect(sellingPriceFocused) {
+        if (sellingPriceFocused && sellingPrice.text.isNotEmpty()) {
+            sellingPrice = sellingPrice.copy(selection = TextRange(0, sellingPrice.text.length))
+        }
+    }
+    
+    LaunchedEffect(wholesalePriceFocused) {
+        if (wholesalePriceFocused && wholesalePrice.text.isNotEmpty()) {
+            wholesalePrice = wholesalePrice.copy(selection = TextRange(0, wholesalePrice.text.length))
+        }
+    }
+    
+    LaunchedEffect(barcodeFocused) {
+        if (barcodeFocused && barcode.text.isNotEmpty()) {
+            barcode = barcode.copy(selection = TextRange(0, barcode.text.length))
+        }
+    }
+    
+    LaunchedEffect(notesFocused) {
+        if (notesFocused && notes.text.isNotEmpty()) {
+            notes = notes.copy(selection = TextRange(0, notes.text.length))
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -307,14 +369,22 @@ fun InventoryItemDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Item Name") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            nameFocused = focusState.isFocused
+                        },
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
                     label = { Text("Category") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            categoryFocused = focusState.isFocused
+                        },
                     singleLine = true
                 )
                 Row(
@@ -325,8 +395,13 @@ fun InventoryItemDialog(
                         value = quantity,
                         onValueChange = { quantity = it },
                         label = { Text("Quantity") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
+                        modifier = Modifier
+                            .weight(1f)
+                            .onFocusChanged { focusState ->
+                                quantityFocused = focusState.isFocused
+                            },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
                 Row(
@@ -337,29 +412,48 @@ fun InventoryItemDialog(
                         value = purchasePrice,
                         onValueChange = { purchasePrice = it },
                         label = { Text("Purchase Price") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
+                        modifier = Modifier
+                            .weight(1f)
+                            .onFocusChanged { focusState ->
+                                purchasePriceFocused = focusState.isFocused
+                            },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                     OutlinedTextField(
                         value = sellingPrice,
                         onValueChange = { sellingPrice = it },
                         label = { Text("Selling Price") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
+                        modifier = Modifier
+                            .weight(1f)
+                            .onFocusChanged { focusState ->
+                                sellingPriceFocused = focusState.isFocused
+                            },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 }
                 OutlinedTextField(
                     value = wholesalePrice,
                     onValueChange = { wholesalePrice = it },
                     label = { Text("Wholesale Price") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            wholesalePriceFocused = focusState.isFocused
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
                 OutlinedTextField(
                     value = barcode,
                     onValueChange = { barcode = it },
                     label = { Text("Barcode") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            barcodeFocused = focusState.isFocused
+                        },
                     singleLine = true,
                     trailingIcon = {
                         IconButton(onClick = { showBarcodeScanner = true }) {
@@ -371,7 +465,11 @@ fun InventoryItemDialog(
                     value = notes,
                     onValueChange = { notes = it },
                     label = { Text("Notes") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            notesFocused = focusState.isFocused
+                        },
                     maxLines = 3
                 )
             }
@@ -381,14 +479,14 @@ fun InventoryItemDialog(
                 onClick = {
                     val newItem = InventoryItem(
                         id = item?.id ?: 0,
-                        name = name,
-                        category = category.ifBlank { null },
-                        quantity = quantity.toIntOrNull() ?: 0,
-                        purchasePrice = purchasePrice.toDoubleOrNull() ?: 0.0,
-                        sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,
-                        wholesalePrice = wholesalePrice.toDoubleOrNull() ?: 0.0,
-                        barcode = barcode.ifBlank { null },
-                        notes = notes.ifBlank { null }
+                        name = name.text,
+                        category = category.text.ifBlank { null },
+                        quantity = quantity.text.toIntOrNull() ?: 0,
+                        purchasePrice = purchasePrice.text.toDoubleOrNull() ?: 0.0,
+                        sellingPrice = sellingPrice.text.toDoubleOrNull() ?: 0.0,
+                        wholesalePrice = wholesalePrice.text.toDoubleOrNull() ?: 0.0,
+                        barcode = barcode.text.ifBlank { null },
+                        notes = notes.text.ifBlank { null }
                     )
                     onSave(newItem)
                 }
@@ -407,7 +505,7 @@ fun InventoryItemDialog(
     if (showBarcodeScanner) {
         BarcodeScannerDialog(
             onBarcodeScanned = { scannedBarcode ->
-                barcode = scannedBarcode
+                barcode = TextFieldValue(scannedBarcode)
                 showBarcodeScanner = false
             },
             onDismiss = { showBarcodeScanner = false }
