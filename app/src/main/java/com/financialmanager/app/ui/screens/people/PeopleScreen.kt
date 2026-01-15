@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.PersonAccount
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
@@ -45,13 +47,13 @@ fun PeopleScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("People") },
+                title = { Text(stringResource(R.string.people)) },
                 actions = {
                     IconButton(onClick = { showTransferDialog = true }) {
-                        Icon(Icons.Default.SwapHoriz, contentDescription = "Transfer Between People")
+                        Icon(Icons.Default.SwapHoriz, contentDescription = stringResource(R.string.transfer_between_people))
                     }
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Person")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_person))
                     }
                 }
             )
@@ -84,12 +86,12 @@ fun PeopleScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Total People",
+                            text = stringResource(R.string.total_people),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Positive Balance: $positiveBalanceCount",
+                            text = stringResource(R.string.positive_balance_count, positiveBalanceCount),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MoneyIn
                         )
@@ -109,12 +111,12 @@ fun PeopleScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search people...") },
+                placeholder = { Text(stringResource(R.string.search_people)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                         }
                     }
                 },
@@ -126,7 +128,7 @@ fun PeopleScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No people found")
+                    Text(stringResource(R.string.no_people))
                 }
             } else {
                 LazyColumn(
@@ -172,8 +174,8 @@ fun PeopleScreen(
     showDeleteDialog?.let { person ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text("Delete Person") },
-            text = { Text("Are you sure you want to delete ${person.name}?") },
+            title = { Text(stringResource(R.string.delete_person)) },
+            text = { Text(stringResource(R.string.delete_person_confirmation, person.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -181,12 +183,12 @@ fun PeopleScreen(
                         showDeleteDialog = null
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -247,7 +249,7 @@ fun PersonCard(
                         if (person.usageCount > 5) {
                             Icon(
                                 Icons.Default.Star,
-                                contentDescription = "Frequently Used",
+                                contentDescription = stringResource(R.string.frequently_used),
                                 tint = MoneyIn,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -275,10 +277,10 @@ fun PersonCard(
             }
             Row {
                 IconButton(onClick = { onEdit(person) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                 }
                 IconButton(onClick = { onDelete(person) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                 }
             }
         }
@@ -298,7 +300,12 @@ fun PersonDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (person == null) "Add Person" else "Edit Person") },
+        title = {
+            Text(
+                if (person == null) stringResource(R.string.add_person)
+                else stringResource(R.string.edit_person)
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -309,7 +316,7 @@ fun PersonDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.name)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -322,7 +329,7 @@ fun PersonDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Phone") },
+                    label = { Text(stringResource(R.string.phone)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -336,7 +343,7 @@ fun PersonDialog(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.email)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -363,12 +370,12 @@ fun PersonDialog(
                     onSave(newPerson)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -445,7 +452,7 @@ fun TransferDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Transfer Between People") },
+        title = { Text(stringResource(R.string.transfer_between_people)) },
         text = {
             Column(
                 modifier = Modifier
@@ -464,7 +471,7 @@ fun TransferDialog(
                             }
                             showFromSuggestions = it.isNotEmpty() && fromPersonId == null
                         },
-                        label = { Text("From Person") },
+                        label = { Text(stringResource(R.string.from_person)) },
                         trailingIcon = { 
                             if (fromSearchQuery.isNotEmpty()) {
                                 IconButton(onClick = { 
@@ -472,7 +479,7 @@ fun TransferDialog(
                                     fromPersonId = null
                                     showFromSuggestions = false
                                 }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                                 }
                             }
                         },
@@ -529,7 +536,7 @@ fun TransferDialog(
                             }
                             showToSuggestions = it.isNotEmpty() && toPersonId == null
                         },
-                        label = { Text("To Person") },
+                        label = { Text(stringResource(R.string.to_person)) },
                         trailingIcon = { 
                             if (toSearchQuery.isNotEmpty()) {
                                 IconButton(onClick = { 
@@ -537,7 +544,7 @@ fun TransferDialog(
                                     toPersonId = null
                                     showToSuggestions = false
                                 }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                                 }
                             }
                         },
@@ -592,7 +599,7 @@ fun TransferDialog(
                         showFromSuggestions = false
                         showToSuggestions = false
                     },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true
@@ -607,7 +614,7 @@ fun TransferDialog(
                         showFromSuggestions = false
                         showToSuggestions = false
                     },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -622,12 +629,12 @@ fun TransferDialog(
                             modifier = Modifier.padding(12.dp)
                         ) {
                             Text(
-                                "Transfer Summary:",
+                                stringResource(R.string.transfer_summary),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             Text("${fromPerson.person.name} → ${toPerson.person.name}")
-                            Text("Amount: ${amount.text}")
+                            Text(stringResource(R.string.amount_format, amount.text))
                         }
                     }
                 }
@@ -644,12 +651,12 @@ fun TransferDialog(
                 enabled = fromPersonId != null && toPersonId != null && 
                          amount.text.toDoubleOrNull()?.let { it > 0 } == true
             ) {
-                Text("Transfer")
+                Text(stringResource(R.string.transfer))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

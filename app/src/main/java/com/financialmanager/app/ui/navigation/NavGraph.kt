@@ -14,6 +14,7 @@ import com.financialmanager.app.ui.screens.reports.ReportsScreen
 import com.financialmanager.app.ui.screens.reports.RecentOperationsScreen
 import com.financialmanager.app.ui.screens.archive.SalesArchiveScreen
 import com.financialmanager.app.ui.screens.search.SearchScreen
+import com.financialmanager.app.ui.screens.settings.SettingsScreen
 import com.financialmanager.app.ui.screens.transactions.TransactionScreen
 
 sealed class Screen(val route: String) {
@@ -30,6 +31,7 @@ sealed class Screen(val route: String) {
     object SalesArchive : Screen("sales_archive")
     object Search : Screen("search")
     object Backup : Screen("backup")
+    object Settings : Screen("settings")
 }
 
 @Composable
@@ -75,6 +77,10 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Backup.route) {
             BackupScreen(navController = navController)
         }
+        composable(Screen.Settings.route) {
+            SettingsScreen(navController = navController)
+        }
     }
 }
+
 

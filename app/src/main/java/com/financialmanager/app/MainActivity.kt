@@ -1,5 +1,6 @@
 package com.financialmanager.app
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -14,10 +15,14 @@ import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.service.GoogleDriveBackupService
 import com.financialmanager.app.ui.navigation.NavGraph
 import com.financialmanager.app.ui.theme.FinancialManagerTheme
+import com.financialmanager.app.util.BackupExecutor
 import com.financialmanager.app.util.BackupThrottler
+import com.financialmanager.app.util.LocaleHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,15 +37,31 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var backupThrottler: BackupThrottler
     
+    @Inject
+    lateinit var backupExecutor: BackupExecutor
+    
     companion object {
         private const val TAG = "MainActivity"
+    }
+    
+    override fun attachBaseContext(newBase: Context) {
+        // Apply saved language before activity is created
+        val savedLanguage = LocaleHelper.getSavedLanguage(newBase)
+        val contextWithLocale = LocaleHelper.setLocale(newBase, savedLanguage)
+        super.attachBaseContext(contextWithLocale)
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Apply locale again after activity is created
+        val savedLanguage = LocaleHelper.getSavedLanguage(this)
+        LocaleHelper.updateActivityLocale(this, savedLanguage)
+        
         // Initialize database checksum for change detection
-        backupThrottler.initializeDatabaseChecksum()
+        lifecycleScope.launch(Dispatchers.IO) {
+            backupThrottler.initializeDatabaseChecksum()
+        }
         
         setContent {
             FinancialManagerTheme {
@@ -80,84 +101,11 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun performAutoBackup() {
-        // Use a separate thread to avoid blocking the main thread
-        Thread {
-            var backupSuccess = false
-            try {
-                Log.d(TAG, "Checking if auto backup should be performed...")
-                
-                // Force WAL checkpoint before checking for changes
-                try {
-                    Log.d(TAG, "Forcing WAL checkpoint before backup check...")
-                    val databaseFile = getDatabasePath("app_database")
-                    if (databaseFile.exists()) {
-                        val db = android.database.sqlite.SQLiteDatabase.openDatabase(
-                            databaseFile.absolutePath,
-                            null,
-                            android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
-                        )
-                        db.execSQL("PRAGMA wal_checkpoint(FULL);")
-                        db.execSQL("PRAGMA wal_checkpoint(TRUNCATE);")
-                        db.close()
-                        Thread.sleep(200) // Give more time for file system sync
-                        Log.d(TAG, "WAL checkpoint completed before backup check")
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not checkpoint WAL before backup check: ${e.message}")
-                }
-                
-                // Check throttling
-                if (!backupThrottler.shouldAllowAutoBackup("MainActivity")) {
-                    return@Thread
-                }
-                
-                // Use runBlocking to get preferences synchronously
-                val autoBackupEnabled = kotlinx.coroutines.runBlocking {
-                    userPreferences.autoBackupEnabled.first()
-                }
-                
-                if (!autoBackupEnabled) {
-                    Log.d(TAG, "Auto backup is disabled")
-                    backupThrottler.markAutoBackupCompleted(false, "MainActivity")
-                    return@Thread
-                }
-                
-                // Check if user has signed in to Google Drive
-                val accountName = kotlinx.coroutines.runBlocking {
-                    userPreferences.googleAccountName.first()
-                }
-                
-                if (accountName.isNullOrEmpty()) {
-                    Log.d(TAG, "No Google account configured for backup")
-                    backupThrottler.markAutoBackupCompleted(false, "MainActivity")
-                    return@Thread
-                }
-                
-                // Initialize Drive service
-                googleDriveBackupService.initializeDriveService(accountName)
-                
-                Log.d(TAG, "Starting automatic backup...")
-                val result = kotlinx.coroutines.runBlocking {
-                    googleDriveBackupService.uploadDatabase(isAutoBackup = true)
-                }
-                
-                if (result.isSuccess) {
-                    Log.d(TAG, "Automatic backup completed successfully: ${result.getOrNull()}")
-                    backupSuccess = true
-                } else {
-                    Log.e(TAG, "Automatic backup failed: ${result.exceptionOrNull()?.message}")
-                }
-                
-            } catch (e: Exception) {
-                Log.e(TAG, "Error during automatic backup", e)
-            } finally {
-                backupThrottler.markAutoBackupCompleted(backupSuccess, "MainActivity")
-            }
-        }.apply {
-            // Set as daemon thread so it doesn't prevent app from closing
-            isDaemon = true
-            start()
+        // Use lifecycleScope with Dispatchers.IO for proper coroutine-based async operations
+        lifecycleScope.launch(Dispatchers.IO) {
+            backupExecutor.performAutoBackup("MainActivity")
         }
     }
 }
+
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,8 +20,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.InventoryItem
 import com.financialmanager.app.data.entities.OutTransaction
+import com.financialmanager.app.data.entities.TransactionType
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
@@ -46,13 +49,13 @@ fun TransactionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Transactions") },
+                title = { Text(stringResource(R.string.transactions)) },
                 actions = {
                     IconButton(onClick = { navController.navigate(Screen.SalesArchive.route) }) {
-                        Icon(Icons.Default.Archive, contentDescription = "Sales Archive")
+                        Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.sales_archive))
                     }
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_transaction))
                     }
                 }
             )
@@ -75,12 +78,12 @@ fun TransactionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search transactions...") },
+                placeholder = { Text(stringResource(R.string.search_transactions)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                         }
                     }
                 },
@@ -96,17 +99,17 @@ fun TransactionScreen(
                 FilterChip(
                     selected = selectedType == null,
                     onClick = { viewModel.setType(null) },
-                    label = { Text("All") }
+                    label = { Text(stringResource(R.string.all)) }
                 )
                 FilterChip(
-                    selected = selectedType == "expense",
-                    onClick = { viewModel.setType("expense") },
-                    label = { Text("Expenses") }
+                    selected = selectedType == TransactionType.EXPENSE,
+                    onClick = { viewModel.setType(TransactionType.EXPENSE) },
+                    label = { Text(stringResource(R.string.expenses)) }
                 )
                 FilterChip(
-                    selected = selectedType == "sale",
-                    onClick = { viewModel.setType("sale") },
-                    label = { Text("Sales") }
+                    selected = selectedType == TransactionType.SALE,
+                    onClick = { viewModel.setType(TransactionType.SALE) },
+                    label = { Text(stringResource(R.string.sales)) }
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -116,7 +119,7 @@ fun TransactionScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No transactions found")
+                    Text(stringResource(R.string.no_transactions))
                 }
             } else {
                 LazyColumn(
@@ -159,8 +162,8 @@ fun TransactionScreen(
     showDeleteDialog?.let { transaction ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text("Delete Transaction") },
-            text = { Text("Are you sure you want to delete this transaction?") },
+            title = { Text(stringResource(R.string.delete_transaction)) },
+            text = { Text(stringResource(R.string.delete_transaction_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -168,12 +171,12 @@ fun TransactionScreen(
                         showDeleteDialog = null
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -188,7 +191,7 @@ fun TransactionCard(
 ) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    val color = if (transaction.type == "sale") MoneyIn else MoneyOut
+    val color = if (transaction.type == TransactionType.SALE) MoneyIn else MoneyOut
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -200,7 +203,7 @@ fun TransactionCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = transaction.description ?: "No description",
+                    text = transaction.description ?: stringResource(R.string.no_description),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -224,16 +227,16 @@ fun TransactionCard(
                     color = color
                 )
                 Text(
-                    text = transaction.type,
+                    text = if (transaction.type == TransactionType.SALE) stringResource(R.string.sale) else stringResource(R.string.expense),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             Row {
                 IconButton(onClick = { onEdit(transaction) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                 }
                 IconButton(onClick = { onDelete(transaction) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                 }
             }
         }
@@ -251,7 +254,7 @@ fun TransactionDialog(
     var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
     var category by remember { mutableStateOf(TextFieldValue(transaction?.category ?: "")) }
     var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
-    var type by remember { mutableStateOf(transaction?.type ?: "expense") }
+    var type by remember { mutableStateOf(transaction?.type ?: TransactionType.EXPENSE) }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
     var selectedItemId by remember { mutableStateOf<Long?>(transaction?.relatedItemId) }
     var quantity by remember { mutableStateOf(TextFieldValue(transaction?.quantity?.toString() ?: "1")) }
@@ -259,16 +262,16 @@ fun TransactionDialog(
     var itemSearchQuery by remember { mutableStateOf("") }
     
     val inventoryItems by viewModel.inventoryItems.collectAsState()
-    val selectedItem = inventoryItems.find { it.id == selectedItemId }
+    val selectedItem = inventoryItems.find { item: InventoryItem -> item.id == selectedItemId }
     
     // Filter inventory items based on search query
     val filteredInventoryItems = remember(inventoryItems, itemSearchQuery) {
         if (itemSearchQuery.isBlank()) {
             inventoryItems
         } else {
-            inventoryItems.filter { item ->
+            inventoryItems.filter { item: InventoryItem ->
                 item.name.contains(itemSearchQuery, ignoreCase = true) ||
-                item.category?.contains(itemSearchQuery, ignoreCase = true) == true
+                (item.category?.contains(itemSearchQuery, ignoreCase = true) == true)
             }
         }
     }
@@ -286,7 +289,7 @@ fun TransactionDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.amount)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -300,7 +303,7 @@ fun TransactionDialog(
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category") },
+                    label = { Text(stringResource(R.string.category)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -312,33 +315,33 @@ fun TransactionDialog(
                 )
                 Row {
                     RadioButton(
-                        selected = type == "expense",
+                        selected = type == TransactionType.EXPENSE,
                         onClick = { 
-                            type = "expense"
+                            type = TransactionType.EXPENSE
                             selectedItemId = null
                         }
                     )
-                    Text("Expense", modifier = Modifier.padding(end = 16.dp))
+                    Text(stringResource(R.string.expense), modifier = Modifier.padding(end = 16.dp))
                     RadioButton(
-                        selected = type == "sale",
-                        onClick = { type = "sale" }
+                        selected = type == TransactionType.SALE,
+                        onClick = { type = TransactionType.SALE }
                     )
-                    Text("Sale")
+                    Text(stringResource(R.string.sale))
                 }
                 
                 // Show inventory item selector for sales
-                if (type == "sale") {
+                if (type == TransactionType.SALE) {
                     OutlinedTextField(
                         value = selectedItem?.name ?: "",
                         onValueChange = { },
-                        label = { Text("Select Inventory Item") },
+                        label = { Text(stringResource(R.string.select_inventory_item)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { showItemSelector = true },
                         readOnly = true,
                         trailingIcon = {
                             IconButton(onClick = { showItemSelector = true }) {
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Item")
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.select_inventory_item))
                             }
                         }
                     )
@@ -354,10 +357,10 @@ fun TransactionDialog(
                                     quantity = it
                                     // Auto-calculate amount: quantity * wholesale price
                                     val qty = it.text.toIntOrNull() ?: 1
-                                    val totalAmount = qty * selectedItem.wholesalePrice
+                                    val totalAmount = qty * (selectedItem?.wholesalePrice ?: 0.0)
                                     amount = TextFieldValue(totalAmount.toString())
                                 },
-                                label = { Text("Quantity") },
+                                label = { Text(stringResource(R.string.quantity)) },
                                 modifier = Modifier
                                     .weight(1f)
                                     .onFocusChanged { focusState ->
@@ -367,20 +370,20 @@ fun TransactionDialog(
                                     },
                                 singleLine = true,
                                 supportingText = {
-                                    Text("Available: ${selectedItem.quantity}")
+                                    Text(stringResource(R.string.available_format, selectedItem?.quantity ?: 0))
                                 },
-                                isError = (quantity.text.toIntOrNull() ?: 0) > selectedItem.quantity
+                                isError = (quantity.text.toIntOrNull() ?: 0) > (selectedItem?.quantity ?: 0)
                             )
                         }
                         
-                        LaunchedEffect(selectedItem.id) {
+                        LaunchedEffect(selectedItem?.id) {
                             // Auto-fill description from selected item (only when item changes)
                             if (description.text.isEmpty() || description.text == transaction?.description) {
-                                description = TextFieldValue(selectedItem.name)
+                                description = TextFieldValue(selectedItem?.name ?: "")
                             }
                             // Auto-calculate amount: quantity * wholesale price
                             val qty = quantity.text.toIntOrNull() ?: 1
-                            val totalAmount = qty * selectedItem.wholesalePrice
+                            val totalAmount = qty * (selectedItem?.wholesalePrice ?: 0.0)
                             if (amount.text.isEmpty() || amount.text == "0.0" || transaction == null) {
                                 amount = TextFieldValue(totalAmount.toString())
                             }
@@ -391,7 +394,7 @@ fun TransactionDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -413,18 +416,18 @@ fun TransactionDialog(
                         date = date,
                         description = description.text.ifBlank { null },
                         type = type,
-                        relatedItemId = if (type == "sale") selectedItemId else null,
-                        quantity = if (type == "sale") quantity.text.toIntOrNull() ?: 1 else 1
+                        relatedItemId = if (type == TransactionType.SALE) selectedItemId else null,
+                        quantity = if (type == TransactionType.SALE) quantity.text.toIntOrNull() ?: 1 else 1
                     )
                     onSave(newTransaction)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -436,7 +439,7 @@ fun TransactionDialog(
                 showItemSelector = false
                 itemSearchQuery = ""
             },
-            title = { Text("Select Inventory Item") },
+            title = { Text(stringResource(R.string.select_inventory_item)) },
             text = {
                 Column(
                     modifier = Modifier.fillMaxWidth()
@@ -448,12 +451,12 @@ fun TransactionDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
-                        placeholder = { Text("Search items...") },
+                        placeholder = { Text(stringResource(R.string.search_items)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             if (itemSearchQuery.isNotEmpty()) {
                                 IconButton(onClick = { itemSearchQuery = "" }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                                 }
                             }
                         },
@@ -468,7 +471,7 @@ fun TransactionDialog(
                                 .height(200.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No items found")
+                            Text(stringResource(R.string.no_items))
                         }
                     } else {
                         LazyColumn(
@@ -506,7 +509,7 @@ fun TransactionDialog(
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
-                                                text = "Qty: ${item.quantity}",
+                                                text = stringResource(R.string.qty_format, item.quantity),
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                         }
@@ -518,7 +521,7 @@ fun TransactionDialog(
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
-                                                text = "Wholesale",
+                                                text = stringResource(R.string.wholesale),
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                         }
@@ -531,7 +534,7 @@ fun TransactionDialog(
             },
             confirmButton = {
                 TextButton(onClick = { showItemSelector = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

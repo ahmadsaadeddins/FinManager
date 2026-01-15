@@ -12,13 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.CapitalTransaction
+import com.financialmanager.app.data.entities.CapitalTransactionType
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
@@ -43,10 +46,10 @@ fun CapitalScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Capital") },
+                title = { Text(stringResource(R.string.capital)) },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_transaction))
                     }
                 }
             )
@@ -69,7 +72,7 @@ fun CapitalScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search transactions...") },
+                placeholder = { Text(stringResource(R.string.search_transactions)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -86,7 +89,7 @@ fun CapitalScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No transactions found")
+                    Text(stringResource(R.string.no_transactions))
                 }
             } else {
                 LazyColumn(
@@ -128,8 +131,8 @@ fun CapitalScreen(
     showDeleteDialog?.let { transaction ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text("Delete Transaction") },
-            text = { Text("Are you sure you want to delete this transaction?") },
+            title = { Text(stringResource(R.string.delete_transaction)) },
+            text = { Text(stringResource(R.string.delete_transaction_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -137,12 +140,12 @@ fun CapitalScreen(
                         showDeleteDialog = null
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -157,7 +160,7 @@ fun CapitalTransactionCard(
 ) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    val color = if (transaction.type == "investment") MoneyIn else MoneyOut
+    val color = if (transaction.type == CapitalTransactionType.INVESTMENT) MoneyIn else MoneyOut
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -193,16 +196,16 @@ fun CapitalTransactionCard(
                     color = color
                 )
                 Text(
-                    text = transaction.type,
+                    text = transaction.type.value,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             Row {
                 IconButton(onClick = { onEdit(transaction) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                 }
                 IconButton(onClick = { onDelete(transaction) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                 }
             }
         }
@@ -219,12 +222,17 @@ fun CapitalTransactionDialog(
     var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
     var source by remember { mutableStateOf(TextFieldValue(transaction?.source ?: "")) }
     var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
-    var type by remember { mutableStateOf(transaction?.type ?: "investment") }
+    var type by remember { mutableStateOf(transaction?.type ?: CapitalTransactionType.INVESTMENT) }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (transaction == null) "Add Capital Transaction" else "Edit Transaction") },
+        title = {
+            Text(
+                if (transaction == null) stringResource(R.string.add_capital)
+                else stringResource(R.string.edit_transaction)
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -235,7 +243,7 @@ fun CapitalTransactionDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.amount)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -249,7 +257,7 @@ fun CapitalTransactionDialog(
                 OutlinedTextField(
                     value = source,
                     onValueChange = { source = it },
-                    label = { Text("Source") },
+                    label = { Text(stringResource(R.string.source)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -261,20 +269,20 @@ fun CapitalTransactionDialog(
                 )
                 Row {
                     RadioButton(
-                        selected = type == "investment",
-                        onClick = { type = "investment" }
+                        selected = type == CapitalTransactionType.INVESTMENT,
+                        onClick = { type = CapitalTransactionType.INVESTMENT }
                     )
-                    Text("Investment", modifier = Modifier.padding(end = 16.dp))
+                    Text(stringResource(R.string.investment), modifier = Modifier.padding(end = 16.dp))
                     RadioButton(
-                        selected = type == "withdrawal",
-                        onClick = { type = "withdrawal" }
+                        selected = type == CapitalTransactionType.WITHDRAWAL,
+                        onClick = { type = CapitalTransactionType.WITHDRAWAL }
                     )
-                    Text("Withdrawal")
+                    Text(stringResource(R.string.withdrawal))
                 }
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -300,12 +308,12 @@ fun CapitalTransactionDialog(
                     onSave(newTransaction)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

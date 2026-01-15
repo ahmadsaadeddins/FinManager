@@ -14,6 +14,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.service.GoogleDriveBackupService
+import com.financialmanager.app.util.BackupExecutor
 import com.financialmanager.app.util.BackupThrottler
 import com.financialmanager.app.worker.AutoBackupWorker
 import dagger.hilt.android.HiltAndroidApp
@@ -39,6 +40,9 @@ class FinancialManagerApplication : Application(), DefaultLifecycleObserver, Con
     
     @Inject
     lateinit var backupThrottler: BackupThrottler
+    
+    @Inject
+    lateinit var backupExecutor: BackupExecutor
     
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
@@ -101,49 +105,7 @@ class FinancialManagerApplication : Application(), DefaultLifecycleObserver, Con
     
     private fun performAutoBackup() {
         applicationScope.launch {
-            var backupSuccess = false
-            try {
-                Log.d(TAG, "Checking if auto backup should be performed...")
-                
-                // Check throttling first
-                if (!backupThrottler.shouldAllowAutoBackup("Application")) {
-                    return@launch
-                }
-                
-                // Check if auto backup is enabled
-                val autoBackupEnabled = userPreferences.autoBackupEnabled.first()
-                if (!autoBackupEnabled) {
-                    Log.d(TAG, "Auto backup is disabled")
-                    backupThrottler.markAutoBackupCompleted(false, "Application")
-                    return@launch
-                }
-                
-                // Check if user has signed in to Google Drive
-                val accountName = userPreferences.googleAccountName.first()
-                if (accountName.isNullOrEmpty()) {
-                    Log.d(TAG, "No Google account configured for backup")
-                    backupThrottler.markAutoBackupCompleted(false, "Application")
-                    return@launch
-                }
-                
-                // Initialize Drive service
-                googleDriveBackupService.initializeDriveService(accountName)
-                
-                Log.d(TAG, "Starting automatic backup from application lifecycle...")
-                val result = googleDriveBackupService.uploadDatabase(isAutoBackup = true)
-                
-                if (result.isSuccess) {
-                    Log.d(TAG, "Automatic backup completed successfully: ${result.getOrNull()}")
-                    backupSuccess = true
-                } else {
-                    Log.e(TAG, "Automatic backup failed: ${result.exceptionOrNull()?.message}")
-                }
-                
-            } catch (e: Exception) {
-                Log.e(TAG, "Error during automatic backup", e)
-            } finally {
-                backupThrottler.markAutoBackupCompleted(backupSuccess, "Application")
-            }
+            backupExecutor.performAutoBackup("Application")
         }
     }
 }

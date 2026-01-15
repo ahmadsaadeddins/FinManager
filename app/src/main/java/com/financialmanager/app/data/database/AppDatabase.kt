@@ -11,6 +11,7 @@ import com.financialmanager.app.data.database.MIGRATION_1_2
 import com.financialmanager.app.data.database.MIGRATION_2_3
 import com.financialmanager.app.data.database.MIGRATION_3_4
 import com.financialmanager.app.data.database.MIGRATION_4_5
+import com.financialmanager.app.data.database.MIGRATION_5_6
 
 @Database(
     entities = [
@@ -21,8 +22,8 @@ import com.financialmanager.app.data.database.MIGRATION_4_5
         PersonTransaction::class,
         Balance::class
     ],
-    version = 5,
-    exportSchema = false
+    version = 6,
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun capitalDao(): CapitalDao
     abstract fun transactionDao(): TransactionDao
     abstract fun personDao(): PersonDao
+    abstract fun transactionInventoryDao(): TransactionInventoryDao
 
     companion object {
         @Volatile
@@ -42,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
                 INSTANCE = instance
                 instance

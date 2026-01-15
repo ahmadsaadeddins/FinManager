@@ -100,7 +100,7 @@ class ExportHelper(
             row.createCell(0).setCellValue(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(transaction.date)))
             row.createCell(1).setCellValue(transaction.source)
             row.createCell(2).setCellValue(transaction.amount)
-            row.createCell(3).setCellValue(transaction.type)
+            row.createCell(3).setCellValue(transaction.type.value)
             row.createCell(4).setCellValue(transaction.description ?: "")
             row.createCell(5).setCellValue(transaction.notes ?: "")
         }
@@ -118,7 +118,7 @@ class ExportHelper(
         transactions.forEachIndexed { index, transaction ->
             val row = sheet.createRow(index + 1)
             row.createCell(0).setCellValue(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(transaction.date)))
-            row.createCell(1).setCellValue(transaction.type)
+            row.createCell(1).setCellValue(transaction.type.name)
             row.createCell(2).setCellValue(transaction.category ?: "")
             row.createCell(3).setCellValue(transaction.amount)
             row.createCell(4).setCellValue(transaction.description ?: "")
@@ -156,7 +156,7 @@ class ExportHelper(
         transactions.forEachIndexed { index, transaction ->
             val row = sheet.createRow(index + 1)
             row.createCell(0).setCellValue(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(transaction.date)))
-            row.createCell(1).setCellValue(transaction.type)
+            row.createCell(1).setCellValue(transaction.type.value)
             row.createCell(2).setCellValue(transaction.amount)
             row.createCell(3).setCellValue(transaction.category ?: "")
             row.createCell(4).setCellValue(transaction.description ?: "")

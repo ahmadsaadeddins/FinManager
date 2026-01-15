@@ -13,14 +13,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.*
-import com.financialmanager.app.utils.NumberFormatter
+import com.financialmanager.app.util.NumberFormatter
 import java.text.NumberFormat
 import java.util.*
 
@@ -48,42 +50,42 @@ fun HomeScreen(
 
     val cards = listOf(
         SummaryCard(
-            "Total Capital",
+            stringResource(R.string.total_capital),
             totalCapital,
             Icons.Default.AccountBalance,
             MoneyIn,
             Screen.Capital.route
         ),
         SummaryCard(
-            "Inventory Value",
+            stringResource(R.string.inventory_value),
             totalInventoryValue,
             Icons.Default.Inventory,
             Inventory,
             Screen.Inventory.route
         ),
         SummaryCard(
-            "People Balance",
+            stringResource(R.string.people_balance),
             totalPeopleBalance,
             Icons.Default.People,
             if ((totalPeopleBalance ?: 0.0) >= 0) MoneyIn else MoneyOut,
             Screen.People.route
         ),
         SummaryCard(
-            "Total Expenses",
+            stringResource(R.string.total_expenses),
             totalExpenses,
             Icons.Default.TrendingDown,
             MoneyOut,
             Screen.Transactions.route
         ),
         SummaryCard(
-            "Total Sales",
+            stringResource(R.string.total_sales),
             totalSales,
             Icons.Default.TrendingUp,
             MoneyIn,
             Screen.Transactions.route
         ),
         SummaryCard(
-            "Profit/Loss",
+            stringResource(R.string.profit_loss),
             profitLoss,
             Icons.Default.Assessment,
             if (profitLoss >= 0) MoneyIn else MoneyOut,
@@ -94,7 +96,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Financial Manager") },
+                title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     // Toggle button for hiding/showing numbers
                     IconButton(onClick = { viewModel.toggleHideNumbers() }) {
@@ -111,6 +113,9 @@ fun HomeScreen(
                     }
                     IconButton(onClick = { navController.navigate(Screen.Reports.route) }) {
                         Icon(Icons.Default.Assessment, contentDescription = "Reports")
+                    }
+                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 }
             )

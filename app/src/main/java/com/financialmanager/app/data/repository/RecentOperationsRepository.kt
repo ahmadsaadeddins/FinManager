@@ -19,14 +19,27 @@ class RecentOperationsRepository @Inject constructor(
 ) {
     
     fun getRecentOperations(limit: Int = 50): Flow<List<RecentOperation>> {
+        val personRecent = personDao.getRecentPersons(limit)
+        val personTxRecent = personDao.getRecentPersonTransactions(limit)
+        val inventoryRecent = inventoryDao.getRecentItems(limit)
+        val outTxRecent = transactionDao.getRecentTransactions(limit)
+        val capitalTxRecent = capitalDao.getRecentTransactions(limit)
+        val allPeopleFlow = personDao.getAllPeople()
+        
+        // Combine Capital Transactions and All People into a single flow of Pairs
+        val capitalAndPeople = combine(capitalTxRecent, allPeopleFlow) { c, ap -> p(c, ap) }
+        
         return combine(
-            personDao.getRecentPersons(limit),
-            personDao.getRecentPersonTransactions(limit),
-            inventoryDao.getRecentItems(limit),
-            transactionDao.getRecentTransactions(limit),
-            capitalDao.getRecentTransactions(limit)
-        ) { persons, personTransactions, inventoryItems, outTransactions, capitalTransactions ->
+            personRecent,
+            personTxRecent,
+            inventoryRecent,
+            outTxRecent,
+            capitalAndPeople
+        ) { persons, personTransactions, inventoryItems, outTransactions, capPair ->
+            val capitalTransactions = capPair.first
+            val allPeople = capPair.second
             
+            val peopleMap = allPeople.associateBy { it.id }
             val operations = mutableListOf<RecentOperation>()
             
             // Add person additions
@@ -38,23 +51,23 @@ class RecentOperationsRepository @Inject constructor(
                         title = "Added Person",
                         description = person.name,
                         timestamp = person.createdAt,
-                        entityData = person
+                        entityData = EntityData.Person(person)
                     )
                 )
             }
             
             // Add person transactions
             personTransactions.forEach { transaction ->
-                val person = personDao.getPersonByIdSync(transaction.personId)
+                val person = peopleMap[transaction.personId]
                 operations.add(
                     RecentOperation(
                         id = transaction.id,
                         type = OperationType.PERSON_TRANSACTION,
-                        title = if (transaction.type == "they_owe_me") "Money Lent" else "Money Borrowed",
+                        title = if (transaction.type == PersonTransactionType.THEY_OWE_ME) "Money Lent" else "Money Borrowed",
                         description = "${person?.name ?: "Unknown"} - ${transaction.description ?: "No description"}",
                         amount = transaction.amount,
                         timestamp = transaction.createdAt,
-                        entityData = transaction
+                        entityData = EntityData.PersonTx(transaction)
                     )
                 )
             }
@@ -69,7 +82,7 @@ class RecentOperationsRepository @Inject constructor(
                         description = "${item.name} (Qty: ${item.quantity})",
                         amount = item.purchasePrice,
                         timestamp = item.createdAt,
-                        entityData = item
+                        entityData = EntityData.Inventory(item)
                     )
                 )
             }
@@ -80,11 +93,11 @@ class RecentOperationsRepository @Inject constructor(
                     RecentOperation(
                         id = transaction.id,
                         type = OperationType.OUT_TRANSACTION,
-                        title = if (transaction.type == "expense") "Expense" else "Sale",
+                        title = if (transaction.type == TransactionType.EXPENSE) "Expense" else "Sale",
                         description = transaction.description ?: "No description",
                         amount = transaction.amount,
                         timestamp = transaction.createdAt,
-                        entityData = transaction
+                        entityData = EntityData.OutTx(transaction)
                     )
                 )
             }
@@ -95,11 +108,11 @@ class RecentOperationsRepository @Inject constructor(
                     RecentOperation(
                         id = transaction.id,
                         type = OperationType.CAPITAL_TRANSACTION,
-                        title = if (transaction.type == "investment") "Investment" else "Withdrawal",
+                        title = if (transaction.type == CapitalTransactionType.INVESTMENT) "Investment" else "Withdrawal",
                         description = "${transaction.source} - ${transaction.description ?: "No description"}",
                         amount = transaction.amount,
                         timestamp = transaction.createdAt,
-                        entityData = transaction
+                        entityData = EntityData.CapitalTx(transaction)
                     )
                 )
             }
@@ -109,30 +122,28 @@ class RecentOperationsRepository @Inject constructor(
         }
     }
     
+    // Helper for nested combine
+    private fun <A, B> p(a: A, b: B): Pair<A, B> = Pair(a, b)
+    
     suspend fun deleteOperation(operation: RecentOperation): Boolean {
         return try {
-            when (operation.type) {
-                OperationType.PERSON_ADDED -> {
-                    val person = operation.entityData as PersonAccount
-                    personDao.deletePerson(person)
+            when (val entityData = operation.entityData) {
+                is EntityData.Person -> {
+                    personDao.deletePerson(entityData.person)
                 }
-                OperationType.PERSON_TRANSACTION -> {
-                    val transaction = operation.entityData as PersonTransaction
-                    personDao.deletePersonTransaction(transaction)
+                is EntityData.PersonTx -> {
+                    personDao.deletePersonTransaction(entityData.transaction)
                 }
-                OperationType.INVENTORY_ADDED -> {
-                    val item = operation.entityData as InventoryItem
-                    inventoryDao.deleteItem(item)
+                is EntityData.Inventory -> {
+                    inventoryDao.deleteItem(entityData.item)
                 }
-                OperationType.OUT_TRANSACTION -> {
-                    val transaction = operation.entityData as OutTransaction
-                    transactionDao.deleteTransaction(transaction)
+                is EntityData.OutTx -> {
+                    transactionDao.deleteTransaction(entityData.transaction)
                 }
-                OperationType.CAPITAL_TRANSACTION -> {
-                    val transaction = operation.entityData as CapitalTransaction
-                    capitalDao.deleteTransaction(transaction)
+                is EntityData.CapitalTx -> {
+                    capitalDao.deleteTransaction(entityData.transaction)
                 }
-                else -> return false
+                null -> return false
             }
             true
         } catch (e: Exception) {

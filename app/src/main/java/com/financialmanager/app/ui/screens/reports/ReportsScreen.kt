@@ -9,10 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.*
@@ -44,28 +46,28 @@ fun ReportsScreen(
     val netCapital = (totalInvestments ?: 0.0) - (totalWithdrawals ?: 0.0)
 
     val reportItems = listOf(
-        ReportItem("Total Capital", totalCapital, MoneyIn, Icons.Default.AccountBalance),
-        ReportItem("Net Capital", netCapital, if (netCapital >= 0) MoneyIn else MoneyOut, Icons.Default.TrendingUp),
-        ReportItem("Total Investments", totalInvestments, MoneyIn, Icons.Default.Add),
-        ReportItem("Total Withdrawals", totalWithdrawals, MoneyOut, Icons.Default.Remove),
-        ReportItem("Inventory Value", totalInventoryValue, Inventory, Icons.Default.Inventory),
-        ReportItem("Total Sales", totalSales, MoneyIn, Icons.Default.TrendingUp),
-        ReportItem("Total Expenses", totalExpenses, MoneyOut, Icons.Default.TrendingDown),
-        ReportItem("Profit/Loss", profitLoss, if (profitLoss >= 0) MoneyIn else MoneyOut, Icons.Default.Assessment)
+        ReportItem(stringResource(R.string.total_capital), totalCapital, MoneyIn, Icons.Default.AccountBalance),
+        ReportItem(stringResource(R.string.net_capital), netCapital, if (netCapital >= 0) MoneyIn else MoneyOut, Icons.Default.TrendingUp),
+        ReportItem(stringResource(R.string.total_investments), totalInvestments, MoneyIn, Icons.Default.Add),
+        ReportItem(stringResource(R.string.total_withdrawals), totalWithdrawals, MoneyOut, Icons.Default.Remove),
+        ReportItem(stringResource(R.string.inventory_value), totalInventoryValue, Inventory, Icons.Default.Inventory),
+        ReportItem(stringResource(R.string.total_sales), totalSales, MoneyIn, Icons.Default.TrendingUp),
+        ReportItem(stringResource(R.string.total_expenses), totalExpenses, MoneyOut, Icons.Default.TrendingDown),
+        ReportItem(stringResource(R.string.profit_loss), profitLoss, if (profitLoss >= 0) MoneyIn else MoneyOut, Icons.Default.Assessment)
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reports") },
+                title = { Text(stringResource(R.string.reports)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showExportDialog = true }) {
-                        Icon(Icons.Default.Share, contentDescription = "Export")
+                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.export))
                     }
                 }
             )
@@ -106,12 +108,12 @@ fun ReportsScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "Recent Operations",
+                            text = stringResource(R.string.recent_operations),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "View, edit, and delete recent transactions and operations",
+                            text = stringResource(R.string.recent_operations_description),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -121,7 +123,7 @@ fun ReportsScreen(
                         ) {
                             Icon(Icons.Default.History, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("View Recent Operations")
+                            Text(stringResource(R.string.view_recent_operations))
                         }
                     }
                 }
@@ -136,11 +138,11 @@ fun ReportsScreen(
     if (showExportDialog) {
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
-            title = { Text("Export Data") },
-            text = { Text("Export functionality will be available after proper repository injection is set up.") },
+            title = { Text(stringResource(R.string.export_data)) },
+            text = { Text(stringResource(R.string.export_placeholder_info)) },
             confirmButton = {
                 TextButton(onClick = { showExportDialog = false }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             }
         )

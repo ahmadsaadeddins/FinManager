@@ -9,10 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 
@@ -28,10 +30,10 @@ fun SearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search") },
+                title = { Text(stringResource(R.string.search)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -54,12 +56,12 @@ fun SearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                         }
                     }
                 },
@@ -71,14 +73,18 @@ fun SearchScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Enter a search query to find items, transactions, and people")
+                    Text(
+                        text = stringResource(R.string.search_hint),
+                        modifier = Modifier.padding(32.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                 }
             } else if (results.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No results found")
+                    Text(stringResource(R.string.no_results))
                 }
             } else {
                 LazyColumn(
@@ -105,6 +111,14 @@ fun SearchResultCard(result: SearchResult) {
         else -> Icons.Default.Info
     }
 
+    val typeText = when (result.type) {
+        "inventory" -> stringResource(R.string.inventory)
+        "capital" -> stringResource(R.string.capital)
+        "transaction" -> stringResource(R.string.transaction)
+        "person" -> stringResource(R.string.person)
+        else -> result.type
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -115,7 +129,7 @@ fun SearchResultCard(result: SearchResult) {
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = result.type,
+                contentDescription = typeText,
                 modifier = Modifier.size(40.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
@@ -132,7 +146,7 @@ fun SearchResultCard(result: SearchResult) {
                     )
                 }
                 Text(
-                    text = result.type,
+                    text = typeText,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )

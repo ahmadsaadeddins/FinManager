@@ -19,16 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.financialmanager.app.R
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 fun BarcodeScannerDialog(
     onBarcodeScanned: (String) -> Unit,
@@ -60,7 +62,7 @@ fun BarcodeScannerDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Scan Barcode") },
+        title = { Text(stringResource(R.string.scan_barcode)) },
         text = {
             if (hasCameraPermission) {
                 Box(
@@ -83,23 +85,22 @@ fun BarcodeScannerDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("Camera permission is required to scan barcodes")
+                    Text(stringResource(R.string.camera_permission_required))
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
-                        Text("Grant Permission")
+                        Text(stringResource(R.string.grant_permission))
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
 
-@OptIn(ExperimentalGetImage::class)
 @Composable
 fun BarcodeScannerView(
     onBarcodeScanned: (String) -> Unit,

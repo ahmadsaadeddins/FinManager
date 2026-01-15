@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -106,10 +108,10 @@ fun BackupScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Backup & Restore") },
+                title = { Text(stringResource(R.string.backup_restore)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -150,12 +152,12 @@ fun BackupScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "Sign in to Google Drive",
+                            text = stringResource(R.string.sign_in_google_drive),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Connect your Google account to backup and restore your data",
+                            text = stringResource(R.string.connect_google_account),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Button(
@@ -164,7 +166,7 @@ fun BackupScreen(
                         ) {
                             Icon(Icons.Default.AccountCircle, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Sign in with Google")
+                            Text(stringResource(R.string.sign_in_google))
                         }
                     }
                 }
@@ -186,7 +188,7 @@ fun BackupScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Google Drive Connected",
+                                    text = stringResource(R.string.google_drive_connected),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -217,11 +219,11 @@ fun BackupScreen(
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Spacer(Modifier.width(8.dp))
-                                Text("Creating Backup...")
+                                Text(stringResource(R.string.creating_backup))
                             } else {
                                 Icon(Icons.Default.Backup, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Create Backup")
+                                Text(stringResource(R.string.create_backup))
                             }
                         }
 
@@ -235,11 +237,11 @@ fun BackupScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(Modifier.width(8.dp))
-                                Text("Loading...")
+                                Text(stringResource(R.string.loading))
                             } else {
                                 Icon(Icons.Default.Refresh, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Refresh Backups")
+                                Text(stringResource(R.string.refresh_backups))
                             }
                         }
                     }
@@ -256,7 +258,7 @@ fun BackupScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Auto Backup Settings",
+                            text = stringResource(R.string.auto_backup_settings),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -270,11 +272,11 @@ fun BackupScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Auto Backup on Exit",
+                                    text = stringResource(R.string.auto_backup_on_exit),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Text(
-                                    text = "Automatically backup data when closing the app",
+                                    text = stringResource(R.string.auto_backup_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -298,7 +300,7 @@ fun BackupScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
-                                    text = "Your data will be automatically backed up to Google Drive when you exit the app",
+                                    text = stringResource(R.string.auto_backup_info),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -311,7 +313,7 @@ fun BackupScreen(
                 when (val currentState = uiState) {
                     is BackupUiState.BackupSuccess -> {
                         AlertCard(
-                            message = currentState.message,
+                            message = "${stringResource(currentState.messageRes)}${currentState.messageArg?.let { ": $it" } ?: ""}",
                             icon = Icons.Default.CheckCircle,
                             color = MaterialTheme.colorScheme.primary,
                             onDismiss = { viewModel.clearSuccess() }
@@ -319,7 +321,7 @@ fun BackupScreen(
                     }
                     is BackupUiState.BackupError -> {
                         AlertCard(
-                            message = currentState.message,
+                            message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                             icon = Icons.Default.Error,
                             color = MaterialTheme.colorScheme.error,
                             onDismiss = { viewModel.clearError() }
@@ -327,15 +329,15 @@ fun BackupScreen(
                     }
                     is BackupUiState.RestoreSuccess -> {
                         AlertCard(
-                            message = currentState.message,
-                            icon = Icons.Default.Info,
+                            message = "${stringResource(currentState.messageRes)}${currentState.messageArg?.let { ": $it" } ?: ""}",
+                            icon = Icons.Default.CheckCircle,
                             color = MaterialTheme.colorScheme.primary,
                             onDismiss = { viewModel.clearSuccess() }
                         )
                     }
                     is BackupUiState.RestoreError -> {
                         AlertCard(
-                            message = currentState.message,
+                            message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                             icon = Icons.Default.Error,
                             color = MaterialTheme.colorScheme.error,
                             onDismiss = { viewModel.clearError() }
@@ -343,7 +345,7 @@ fun BackupScreen(
                     }
                     is BackupUiState.DeleteSuccess -> {
                         AlertCard(
-                            message = currentState.message,
+                            message = "${stringResource(currentState.messageRes)}${currentState.messageArg?.let { ": $it" } ?: ""}",
                             icon = Icons.Default.CheckCircle,
                             color = MaterialTheme.colorScheme.primary,
                             onDismiss = { viewModel.clearSuccess() }
@@ -351,7 +353,7 @@ fun BackupScreen(
                     }
                     is BackupUiState.DeleteError -> {
                         AlertCard(
-                            message = currentState.message,
+                            message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                             icon = Icons.Default.Error,
                             color = MaterialTheme.colorScheme.error,
                             onDismiss = { viewModel.clearError() }
@@ -363,7 +365,7 @@ fun BackupScreen(
                 // Backups list
                 if (backups.isNotEmpty()) {
                     Text(
-                        text = "Available Backups",
+                        text = stringResource(R.string.available_backups),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -403,11 +405,11 @@ fun BackupScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "No backups found",
+                                text = stringResource(R.string.no_backups_found),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = "Create a backup to get started",
+                                text = stringResource(R.string.create_backup_hint),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -457,7 +459,7 @@ fun AlertCard(
                 )
             }
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Dismiss")
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dismiss))
             }
         }
     }
@@ -492,7 +494,7 @@ fun BackupItemCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = backup.name ?: "Backup",
+                        text = backup.name ?: stringResource(R.string.backup),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -522,11 +524,11 @@ fun BackupItemCard(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Restoring...")
+                        Text(stringResource(R.string.restoring))
                     } else {
                         Icon(Icons.Default.Restore, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Restore")
+                        Text(stringResource(R.string.restore))
                     }
                 }
                 
@@ -544,11 +546,11 @@ fun BackupItemCard(
                             color = MaterialTheme.colorScheme.error
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Deleting...")
+                        Text(stringResource(R.string.deleting))
                     } else {
                         Icon(Icons.Default.Delete, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Delete")
+                        Text(stringResource(R.string.delete))
                     }
                 }
             }

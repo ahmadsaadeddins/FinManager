@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.InventoryItem
 import com.financialmanager.app.ui.components.BarcodeScannerDialog
 import com.financialmanager.app.ui.components.BottomNavigationBar
@@ -36,6 +38,8 @@ fun InventoryScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
 
+    val errorState by viewModel.errorState.collectAsState()
+
     var showAddDialog by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<InventoryItem?>(null) }
     var showDeleteDialog by remember { mutableStateOf<InventoryItem?>(null) }
@@ -43,10 +47,10 @@ fun InventoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Inventory") },
+                title = { Text(stringResource(R.string.inventory)) },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Item")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_item))
                     }
                 }
             )
@@ -70,12 +74,12 @@ fun InventoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search items...") },
+                placeholder = { Text(stringResource(R.string.search_items)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cancel))
                         }
                     }
                 },
@@ -93,7 +97,7 @@ fun InventoryScreen(
                     FilterChip(
                         selected = selectedCategory == null,
                         onClick = { viewModel.setCategory(null) },
-                        label = { Text("All") }
+                        label = { Text(stringResource(R.string.all)) }
                     )
                     categories.forEach { category ->
                         FilterChip(
@@ -112,7 +116,7 @@ fun InventoryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No items found")
+                    Text(stringResource(R.string.no_items))
                 }
             } else {
                 LazyColumn(
@@ -127,6 +131,20 @@ fun InventoryScreen(
                             onDelete = { showDeleteDialog = it }
                         )
                     }
+                }
+            }
+
+            // Error Message
+            errorState?.let { (messageRes, dynamicMessage) ->
+                Snackbar(
+                    modifier = Modifier.padding(16.dp),
+                    action = {
+                        TextButton(onClick = { viewModel.clearError() }) {
+                            Text(stringResource(R.string.dismiss))
+                        }
+                    }
+                ) {
+                    Text("${stringResource(messageRes)}${dynamicMessage?.let { ": $it" } ?: ""}")
                 }
             }
         }
@@ -156,8 +174,8 @@ fun InventoryScreen(
             showDeleteDialog?.let { item ->
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = null },
-                    title = { Text("Delete Item") },
-                    text = { Text("Are you sure you want to delete ${item.name}?") },
+                    title = { Text(stringResource(R.string.delete_item)) },
+                    text = { Text(stringResource(R.string.delete_item_confirmation, item.name)) },
                     confirmButton = {
                         TextButton(
                             onClick = {
@@ -165,12 +183,12 @@ fun InventoryScreen(
                                 showDeleteDialog = null
                             }
                         ) {
-                            Text("Delete")
+                            Text(stringResource(R.string.delete))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteDialog = null }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
@@ -214,10 +232,10 @@ fun InventoryItemCard(
                 }
                 Row {
                     IconButton(onClick = { onEdit(item) }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                     }
                     IconButton(onClick = { onDelete(item) }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                     }
                 }
             }
@@ -226,13 +244,13 @@ fun InventoryItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Quantity: ${item.quantity}")
-                Text("Wholesale: ${formatter.format(item.wholesalePrice)}")
+                Text(stringResource(R.string.qty_format, item.quantity))
+                Text(stringResource(R.string.wholesale_format, formatter.format(item.wholesalePrice)))
             }
             if (item.barcode != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Barcode: ${item.barcode}",
+                    text = stringResource(R.string.barcode_format, item.barcode),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -326,7 +344,12 @@ fun InventoryItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (item == null) "Add Item" else "Edit Item") },
+        title = {
+            Text(
+                if (item == null) stringResource(R.string.add_item)
+                else stringResource(R.string.edit_item)
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -337,7 +360,7 @@ fun InventoryItemDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Item Name") },
+                    label = { Text(stringResource(R.string.item_name)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -348,7 +371,7 @@ fun InventoryItemDialog(
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category") },
+                    label = { Text(stringResource(R.string.category)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -363,7 +386,7 @@ fun InventoryItemDialog(
                     OutlinedTextField(
                         value = quantity,
                         onValueChange = { quantity = it },
-                        label = { Text("Quantity") },
+                        label = { Text(stringResource(R.string.quantity)) },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { focusState ->
@@ -380,7 +403,7 @@ fun InventoryItemDialog(
                     OutlinedTextField(
                         value = purchasePrice,
                         onValueChange = { purchasePrice = it },
-                        label = { Text("Purchase Price") },
+                        label = { Text(stringResource(R.string.purchase_price)) },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { focusState ->
@@ -392,7 +415,7 @@ fun InventoryItemDialog(
                     OutlinedTextField(
                         value = sellingPrice,
                         onValueChange = { sellingPrice = it },
-                        label = { Text("Selling Price") },
+                        label = { Text(stringResource(R.string.selling_price)) },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { focusState ->
@@ -405,7 +428,7 @@ fun InventoryItemDialog(
                 OutlinedTextField(
                     value = wholesalePrice,
                     onValueChange = { wholesalePrice = it },
-                    label = { Text("Wholesale Price") },
+                    label = { Text(stringResource(R.string.wholesale_price)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -417,7 +440,7 @@ fun InventoryItemDialog(
                 OutlinedTextField(
                     value = barcode,
                     onValueChange = { barcode = it },
-                    label = { Text("Barcode") },
+                    label = { Text(stringResource(R.string.barcode)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -426,14 +449,14 @@ fun InventoryItemDialog(
                     singleLine = true,
                     trailingIcon = {
                         IconButton(onClick = { showBarcodeScanner = true }) {
-                            Icon(Icons.Default.Camera, contentDescription = "Scan Barcode")
+                            Icon(Icons.Default.Camera, contentDescription = stringResource(R.string.scan_barcode))
                         }
                     }
                 )
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Notes") },
+                    label = { Text(stringResource(R.string.notes)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -460,12 +483,12 @@ fun InventoryItemDialog(
                     onSave(newItem)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

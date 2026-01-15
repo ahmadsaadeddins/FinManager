@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.OutTransaction
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
@@ -42,10 +44,10 @@ fun SalesArchiveScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Sales Archive") },
+                title = { Text(stringResource(R.string.sales_archive)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -54,7 +56,7 @@ fun SalesArchiveScreen(
                             onClick = { showArchiveDialog = true },
                             enabled = uiState !is SalesArchiveUiState.ArchivingInProgress
                         ) {
-                            Icon(Icons.Default.Archive, contentDescription = "Archive All Sales")
+                            Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive_all_sales))
                         }
                     }
                 }
@@ -78,7 +80,7 @@ fun SalesArchiveScreen(
             when (val currentState = uiState) {
                 is SalesArchiveUiState.ArchiveSuccess -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = stringResource(currentState.messageRes, currentState.archivedCount),
                         icon = Icons.Default.CheckCircle,
                         color = MaterialTheme.colorScheme.primary,
                         onDismiss = { viewModel.clearMessage() }
@@ -86,7 +88,7 @@ fun SalesArchiveScreen(
                 }
                 is SalesArchiveUiState.ArchiveError -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                         icon = Icons.Default.Error,
                         color = MaterialTheme.colorScheme.error,
                         onDismiss = { viewModel.clearMessage() }
@@ -94,7 +96,7 @@ fun SalesArchiveScreen(
                 }
                 is SalesArchiveUiState.UnarchiveSuccess -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = stringResource(currentState.messageRes),
                         icon = Icons.Default.CheckCircle,
                         color = MaterialTheme.colorScheme.primary,
                         onDismiss = { viewModel.clearMessage() }
@@ -102,7 +104,7 @@ fun SalesArchiveScreen(
                 }
                 is SalesArchiveUiState.UnarchiveError -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                         icon = Icons.Default.Error,
                         color = MaterialTheme.colorScheme.error,
                         onDismiss = { viewModel.clearMessage() }
@@ -137,7 +139,7 @@ fun SalesArchiveScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Active Sales",
+                            text = stringResource(R.string.active_sales),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -148,7 +150,7 @@ fun SalesArchiveScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "$activeSalesCount transactions",
+                            text = stringResource(R.string.transactions_count, activeSalesCount),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -176,7 +178,7 @@ fun SalesArchiveScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Archived Sales",
+                            text = stringResource(R.string.archived_sales),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -187,7 +189,7 @@ fun SalesArchiveScreen(
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Text(
-                            text = "${archivedSales.size} transactions",
+                            text = stringResource(R.string.transactions_count, archivedSales.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -200,12 +202,12 @@ fun SalesArchiveScreen(
                 Tab(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
-                    text = { Text("Active Sales") }
+                    text = { Text(stringResource(R.string.active_sales)) }
                 )
                 Tab(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
-                    text = { Text("Archived Sales") }
+                    text = { Text(stringResource(R.string.archived_sales)) }
                 )
             }
 
@@ -216,8 +218,8 @@ fun SalesArchiveScreen(
                     if (activeSales.isEmpty()) {
                         EmptyStateCard(
                             icon = Icons.Default.TrendingUp,
-                            title = "No Active Sales",
-                            description = "No sales transactions found. Add some sales to see them here."
+                            title = stringResource(R.string.no_active_sales_title),
+                            description = stringResource(R.string.no_active_sales_desc)
                         )
                     } else {
                         LazyColumn(
@@ -238,8 +240,8 @@ fun SalesArchiveScreen(
                     if (archivedSales.isEmpty()) {
                         EmptyStateCard(
                             icon = Icons.Default.Archive,
-                            title = "No Archived Sales",
-                            description = "No archived sales found. Archive some sales to see them here."
+                            title = stringResource(R.string.no_archived_sales_title),
+                            description = stringResource(R.string.no_archived_sales_desc)
                         )
                     } else {
                         LazyColumn(
@@ -263,16 +265,16 @@ fun SalesArchiveScreen(
     if (showArchiveDialog) {
         AlertDialog(
             onDismissRequest = { showArchiveDialog = false },
-            title = { Text("Archive All Sales") },
+            title = { Text(stringResource(R.string.archive_all_sales)) },
             text = {
                 Column {
-                    Text("This will archive all current sales transactions:")
+                    Text(stringResource(R.string.archive_all_info))
                     Spacer(Modifier.height(8.dp))
-                    Text("• Total: ${currencyFormat.format(totalActiveSales ?: 0.0)}")
-                    Text("• Count: $activeSalesCount transactions")
+                    Text("• ${stringResource(R.string.total_format, currencyFormat.format(totalActiveSales ?: 0.0))}")
+                    Text("• ${stringResource(R.string.transactions_count, activeSalesCount)}")
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "After archiving, your current sales total will be reset to $0.00",
+                        stringResource(R.string.archive_reset_info),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -293,12 +295,12 @@ fun SalesArchiveScreen(
                         )
                         Spacer(Modifier.width(8.dp))
                     }
-                    Text("Archive")
+                    Text(stringResource(R.string.archive))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showArchiveDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -330,7 +332,7 @@ fun SaleTransactionCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = transaction.description ?: "Sale",
+                        text = transaction.description ?: stringResource(R.string.sale),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -350,7 +352,7 @@ fun SaleTransactionCard(
                     )
                     if (isArchived && transaction.archivedAt != null) {
                         Text(
-                            text = "Archived: ${dateFormat.format(Date(transaction.archivedAt))}",
+                            text = stringResource(R.string.archived_format, dateFormat.format(Date(transaction.archivedAt))),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary
                         )
@@ -366,7 +368,7 @@ fun SaleTransactionCard(
                     )
                     if (transaction.quantity > 1) {
                         Text(
-                            text = "Qty: ${transaction.quantity}",
+                            text = stringResource(R.string.qty_format, transaction.quantity),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -391,7 +393,7 @@ fun SaleTransactionCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text("Restore")
+                        Text(stringResource(R.string.restore))
                     }
                 }
             }
@@ -473,7 +475,7 @@ fun AlertCard(
                 )
             }
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Dismiss")
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dismiss))
             }
         }
     }

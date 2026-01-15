@@ -3,6 +3,7 @@ package com.financialmanager.app.data.repository
 import com.financialmanager.app.data.dao.PersonDao
 import com.financialmanager.app.data.entities.PersonAccount
 import com.financialmanager.app.data.entities.PersonTransaction
+import com.financialmanager.app.data.entities.PersonTransactionType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -73,7 +74,7 @@ class PersonRepository @Inject constructor(
             amount = amount,
             date = timestamp,
             description = "$description (to ${getPersonById(toPersonId)?.name ?: "Unknown"})",
-            type = "i_owe_them", // Money going out from this person
+            type = PersonTransactionType.I_OWE_THEM, // Money going out from this person
             category = "Transfer",
             notes = "Transfer to person ID: $toPersonId"
         )
@@ -84,7 +85,7 @@ class PersonRepository @Inject constructor(
             amount = amount,
             date = timestamp,
             description = "$description (from ${getPersonById(fromPersonId)?.name ?: "Unknown"})",
-            type = "they_owe_me", // Money coming in to this person
+            type = PersonTransactionType.THEY_OWE_ME, // Money coming in to this person
             category = "Transfer",
             notes = "Transfer from person ID: $fromPersonId"
         )

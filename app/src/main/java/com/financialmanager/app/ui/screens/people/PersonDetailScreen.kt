@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,7 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.compose.runtime.LaunchedEffect
+import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.PersonTransaction
+import com.financialmanager.app.data.entities.PersonTransactionType
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
@@ -50,15 +53,15 @@ fun PersonDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(person?.name ?: "Person Details") },
+                title = { Text(person?.name ?: stringResource(R.string.person_details)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_transaction))
                     }
                 }
             )
@@ -91,7 +94,7 @@ fun PersonDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Balance",
+                        text = stringResource(R.string.balance),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -102,7 +105,7 @@ fun PersonDetailScreen(
                         color = if ((balance ?: 0.0) >= 0) MoneyIn else MoneyOut
                     )
                     Text(
-                        text = if ((balance ?: 0.0) >= 0) "They owe you" else "You owe them",
+                        text = if ((balance ?: 0.0) >= 0) stringResource(R.string.they_owe_you) else stringResource(R.string.you_owe_them),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -114,7 +117,7 @@ fun PersonDetailScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No transactions found")
+                    Text(stringResource(R.string.no_transactions_found))
                 }
             } else {
                 LazyColumn(
@@ -157,8 +160,8 @@ fun PersonDetailScreen(
     showDeleteDialog?.let { transaction ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text("Delete Transaction") },
-            text = { Text("Are you sure you want to delete this transaction?") },
+            title = { Text(stringResource(R.string.delete_transaction)) },
+            text = { Text(stringResource(R.string.delete_transaction_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -166,12 +169,12 @@ fun PersonDetailScreen(
                         showDeleteDialog = null
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -186,7 +189,7 @@ fun PersonTransactionCard(
 ) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    val color = if (transaction.type == "they_owe_me") MoneyIn else MoneyOut
+    val color = if (transaction.type == PersonTransactionType.THEY_OWE_ME) MoneyIn else MoneyOut
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -198,7 +201,7 @@ fun PersonTransactionCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = transaction.description ?: "No description",
+                    text = transaction.description ?: stringResource(R.string.no_description),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -222,16 +225,16 @@ fun PersonTransactionCard(
                     color = color
                 )
                 Text(
-                    text = if (transaction.type == "they_owe_me") "They owe" else "You owe",
+                    text = if (transaction.type == PersonTransactionType.THEY_OWE_ME) stringResource(R.string.they_owe) else stringResource(R.string.you_owe),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             Row {
                 IconButton(onClick = { onEdit(transaction) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                 }
                 IconButton(onClick = { onDelete(transaction) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                 }
             }
         }
@@ -249,12 +252,12 @@ fun PersonTransactionDialog(
     var amount by remember { mutableStateOf(TextFieldValue(transaction?.amount?.toString() ?: "")) }
     var category by remember { mutableStateOf(TextFieldValue(transaction?.category ?: "")) }
     var description by remember { mutableStateOf(TextFieldValue(transaction?.description ?: "")) }
-    var type by remember { mutableStateOf(transaction?.type ?: "they_owe_me") }
+    var type by remember { mutableStateOf(transaction?.type ?: PersonTransactionType.THEY_OWE_ME) }
     var date by remember { mutableStateOf(transaction?.date ?: System.currentTimeMillis()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (transaction == null) "Add Transaction" else "Edit Transaction") },
+        title = { Text(if (transaction == null) stringResource(R.string.add_transaction) else stringResource(R.string.edit_transaction)) },
         text = {
             Column(
                 modifier = Modifier
@@ -265,7 +268,7 @@ fun PersonTransactionDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.amount)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -279,7 +282,7 @@ fun PersonTransactionDialog(
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category") },
+                    label = { Text(stringResource(R.string.category)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -291,20 +294,20 @@ fun PersonTransactionDialog(
                 )
                 Row {
                     RadioButton(
-                        selected = type == "they_owe_me",
-                        onClick = { type = "they_owe_me" }
+                        selected = type == PersonTransactionType.THEY_OWE_ME,
+                        onClick = { type = PersonTransactionType.THEY_OWE_ME }
                     )
-                    Text("They Owe Me", modifier = Modifier.padding(end = 16.dp))
+                    Text(stringResource(R.string.they_owe_me), modifier = Modifier.padding(end = 16.dp))
                     RadioButton(
-                        selected = type == "i_owe_them",
-                        onClick = { type = "i_owe_them" }
+                        selected = type == PersonTransactionType.I_OWE_THEM,
+                        onClick = { type = PersonTransactionType.I_OWE_THEM }
                     )
-                    Text("I Owe Them")
+                    Text(stringResource(R.string.i_owe_them))
                 }
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
@@ -331,12 +334,12 @@ fun PersonTransactionDialog(
                     onSave(newTransaction)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

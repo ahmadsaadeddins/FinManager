@@ -9,16 +9,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.financialmanager.app.R
 import javax.inject.Inject
 
 sealed class SalesArchiveUiState {
     object Idle : SalesArchiveUiState()
     object ArchivingInProgress : SalesArchiveUiState()
-    data class ArchiveSuccess(val message: String, val archivedCount: Int) : SalesArchiveUiState()
-    data class ArchiveError(val message: String) : SalesArchiveUiState()
+    data class ArchiveSuccess(val messageRes: Int, val archivedCount: Int) : SalesArchiveUiState()
+    data class ArchiveError(val messageRes: Int, val dynamicMessage: String? = null) : SalesArchiveUiState()
     object UnarchivingInProgress : SalesArchiveUiState()
-    data class UnarchiveSuccess(val message: String) : SalesArchiveUiState()
-    data class UnarchiveError(val message: String) : SalesArchiveUiState()
+    data class UnarchiveSuccess(val messageRes: Int) : SalesArchiveUiState()
+    data class UnarchiveError(val messageRes: Int, val dynamicMessage: String? = null) : SalesArchiveUiState()
 }
 
 @HiltViewModel
@@ -45,14 +46,14 @@ class SalesArchiveViewModel @Inject constructor(
                 val archivedCount = transactionRepository.archiveAllSales()
                 if (archivedCount > 0) {
                     _uiState.value = SalesArchiveUiState.ArchiveSuccess(
-                        "Successfully archived $archivedCount sales transactions",
+                        R.string.archive_success_format,
                         archivedCount
                     )
                 } else {
-                    _uiState.value = SalesArchiveUiState.ArchiveError("No sales transactions to archive")
+                    _uiState.value = SalesArchiveUiState.ArchiveError(R.string.no_sales_to_archive)
                 }
             } catch (e: Exception) {
-                _uiState.value = SalesArchiveUiState.ArchiveError("Failed to archive sales: ${e.message}")
+                _uiState.value = SalesArchiveUiState.ArchiveError(R.string.failed_to_archive_sales, e.message)
             }
         }
     }
@@ -62,9 +63,9 @@ class SalesArchiveViewModel @Inject constructor(
             _uiState.value = SalesArchiveUiState.UnarchivingInProgress
             try {
                 transactionRepository.unarchiveTransaction(transaction.id)
-                _uiState.value = SalesArchiveUiState.UnarchiveSuccess("Transaction restored successfully")
+                _uiState.value = SalesArchiveUiState.UnarchiveSuccess(R.string.transaction_restored_successfully)
             } catch (e: Exception) {
-                _uiState.value = SalesArchiveUiState.UnarchiveError("Failed to restore transaction: ${e.message}")
+                _uiState.value = SalesArchiveUiState.UnarchiveError(R.string.failed_to_restore_transaction, e.message)
             }
         }
     }

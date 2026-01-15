@@ -2,15 +2,19 @@ package com.financialmanager.app.util
 
 import android.content.Context
 import android.util.Log
+import com.financialmanager.app.data.database.AppDatabase
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.File
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class BackupThrottler @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val database: AppDatabase
 ) {
     
     companion object {
@@ -24,14 +28,14 @@ class BackupThrottler @Inject constructor(
     private var isAutoBackupInProgress = false
     private var backupProcessId: String? = null // Track which process is doing backup
     private var lastDatabaseChecksum: String? = null // Track database changes
+    private val mutex = Mutex()
     
     /**
      * Check if automatic backup should be allowed
      * @param processId unique identifier for the calling process
      * @return true if backup should proceed, false if it should be skipped
      */
-    @Synchronized
-    fun shouldAllowAutoBackup(processId: String = "unknown"): Boolean {
+    suspend fun shouldAllowAutoBackup(processId: String = "unknown"): Boolean = mutex.withLock {
         val currentTime = System.currentTimeMillis()
         
         // Don't allow if backup is already in progress by any process
@@ -69,8 +73,7 @@ class BackupThrottler @Inject constructor(
      * Check if manual backup should be allowed
      * @return true if backup should proceed, false if it should be skipped
      */
-    @Synchronized
-    fun shouldAllowManualBackup(): Boolean {
+    suspend fun shouldAllowManualBackup(): Boolean = mutex.withLock {
         Log.d(TAG, "Manual backup always allowed")
         return true
     }
@@ -78,8 +81,7 @@ class BackupThrottler @Inject constructor(
     /**
      * Mark automatic backup as completed
      */
-    @Synchronized
-    fun markAutoBackupCompleted(success: Boolean, processId: String = "unknown") {
+    suspend fun markAutoBackupCompleted(success: Boolean, processId: String = "unknown") = mutex.withLock {
         isAutoBackupInProgress = false
         if (success) {
             lastAutoBackupTime = System.currentTimeMillis()
@@ -95,8 +97,7 @@ class BackupThrottler @Inject constructor(
     /**
      * Mark manual backup as completed
      */
-    @Synchronized
-    fun markManualBackupCompleted(success: Boolean) {
+    suspend fun markManualBackupCompleted(success: Boolean) = mutex.withLock {
         if (success) {
             lastManualBackupTime = System.currentTimeMillis()
             // Update the database checksum after successful manual backup too
@@ -110,8 +111,7 @@ class BackupThrottler @Inject constructor(
     /**
      * Reset throttling (useful for testing or when app restarts)
      */
-    @Synchronized
-    fun reset() {
+    suspend fun reset() = mutex.withLock {
         lastAutoBackupTime = 0L
         lastManualBackupTime = 0L
         isAutoBackupInProgress = false
@@ -124,7 +124,7 @@ class BackupThrottler @Inject constructor(
      * Check if the database has changed since the last backup
      * @return true if database has changed, false if it's the same
      */
-    private fun hasDatabaseChanged(): Boolean {
+    private suspend fun hasDatabaseChanged(): Boolean {
         return try {
             val currentChecksum = calculateDatabaseChecksum()
             val hasChanged = currentChecksum != lastDatabaseChecksum
@@ -145,7 +145,7 @@ class BackupThrottler @Inject constructor(
      * Calculate MD5 checksum of the database file
      * @return MD5 checksum string or null if file doesn't exist
      */
-    private fun calculateDatabaseChecksum(): String? {
+    private suspend fun calculateDatabaseChecksum(): String? {
         return try {
             val databaseFile = context.getDatabasePath(DATABASE_NAME)
             if (!databaseFile.exists()) {
@@ -156,17 +156,12 @@ class BackupThrottler @Inject constructor(
             // Force WAL checkpoint to ensure all changes are in the main database file
             try {
                 Log.d(TAG, "Forcing WAL checkpoint before checksum calculation...")
-                val db = android.database.sqlite.SQLiteDatabase.openDatabase(
-                    databaseFile.absolutePath,
-                    null,
-                    android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
-                )
-                db.execSQL("PRAGMA wal_checkpoint(FULL);")
-                db.execSQL("PRAGMA wal_checkpoint(TRUNCATE);")
-                db.close()
+                val db = database.openHelper.writableDatabase
+                db.query("PRAGMA wal_checkpoint(FULL)").close()
+                db.query("PRAGMA wal_checkpoint(TRUNCATE)").close()
                 
                 // Give a moment for file system to sync
-                Thread.sleep(100)
+                delay(100)
                 Log.d(TAG, "WAL checkpoint completed before checksum")
             } catch (e: Exception) {
                 Log.w(TAG, "Could not checkpoint WAL before checksum, continuing anyway: ${e.message}")
@@ -197,7 +192,7 @@ class BackupThrottler @Inject constructor(
     /**
      * Update the stored database checksum after a successful backup
      */
-    private fun updateDatabaseChecksum() {
+    private suspend fun updateDatabaseChecksum() {
         try {
             lastDatabaseChecksum = calculateDatabaseChecksum()
             Log.d(TAG, "Updated database checksum: $lastDatabaseChecksum")
@@ -209,8 +204,7 @@ class BackupThrottler @Inject constructor(
     /**
      * Force update the database checksum (useful for initialization)
      */
-    @Synchronized
-    fun initializeDatabaseChecksum() {
+    suspend fun initializeDatabaseChecksum() = mutex.withLock {
         updateDatabaseChecksum()
         Log.d(TAG, "Database checksum initialized: $lastDatabaseChecksum")
     }
@@ -219,24 +213,15 @@ class BackupThrottler @Inject constructor(
      * Force a WAL checkpoint and recalculate checksum
      * Useful when you know changes were made but want to ensure they're persisted
      */
-    @Synchronized
-    fun forceChecksumUpdate() {
+    suspend fun forceChecksumUpdate() = mutex.withLock {
         try {
             Log.d(TAG, "Forcing database sync and checksum update...")
             
             // Force WAL checkpoint
-            val databaseFile = context.getDatabasePath(DATABASE_NAME)
-            if (databaseFile.exists()) {
-                val db = android.database.sqlite.SQLiteDatabase.openDatabase(
-                    databaseFile.absolutePath,
-                    null,
-                    android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
-                )
-                db.execSQL("PRAGMA wal_checkpoint(FULL);")
-                db.execSQL("PRAGMA wal_checkpoint(TRUNCATE);")
-                db.close()
-                Thread.sleep(150) // Give time for file system sync
-            }
+            val db = database.openHelper.writableDatabase
+            db.query("PRAGMA wal_checkpoint(FULL)").close()
+            db.query("PRAGMA wal_checkpoint(TRUNCATE)").close()
+            delay(150) // Give time for file system sync
             
             // Recalculate checksum
             updateDatabaseChecksum()

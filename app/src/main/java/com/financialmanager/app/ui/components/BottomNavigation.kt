@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.financialmanager.app.R
 import com.financialmanager.app.ui.navigation.Screen
 
 data class BottomNavItem(
@@ -19,11 +21,11 @@ fun BottomNavigationBar(
     onNavigate: (String) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem("Home", Icons.Default.Home, Screen.Home.route),
-        BottomNavItem("Inventory", Icons.Default.Inventory, Screen.Inventory.route),
-        BottomNavItem("Capital", Icons.Default.AccountBalance, Screen.Capital.route),
-        BottomNavItem("Transactions", Icons.Default.Receipt, Screen.Transactions.route),
-        BottomNavItem("People", Icons.Default.People, Screen.People.route)
+        BottomNavItem(stringResource(R.string.home), Icons.Default.Home, Screen.Home.route),
+        BottomNavItem(stringResource(R.string.inventory), Icons.Default.Inventory, Screen.Inventory.route),
+        BottomNavItem(stringResource(R.string.capital), Icons.Default.AccountBalance, Screen.Capital.route),
+        BottomNavItem(stringResource(R.string.transactions), Icons.Default.Receipt, Screen.Transactions.route),
+        BottomNavItem(stringResource(R.string.people), Icons.Default.People, Screen.People.route)
     )
 
     NavigationBar {

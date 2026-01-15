@@ -1,5 +1,13 @@
 package com.financialmanager.app.data.entities
 
+sealed class EntityData {
+    data class Person(val person: PersonAccount) : EntityData()
+    data class PersonTx(val transaction: PersonTransaction) : EntityData()
+    data class Inventory(val item: InventoryItem) : EntityData()
+    data class OutTx(val transaction: OutTransaction) : EntityData()
+    data class CapitalTx(val transaction: CapitalTransaction) : EntityData()
+}
+
 data class RecentOperation(
     val id: Long,
     val type: OperationType,
@@ -9,7 +17,7 @@ data class RecentOperation(
     val timestamp: Long,
     val canEdit: Boolean = true,
     val canDelete: Boolean = true,
-    val entityData: Any? = null // Store the actual entity for operations
+    val entityData: EntityData? = null // Store the actual entity for operations
 )
 
 enum class OperationType {

@@ -21,14 +21,22 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideInventoryDao(database: AppDatabase): InventoryDao = database.inventoryDao()
 
     @Provides
+    @Singleton
     fun provideCapitalDao(database: AppDatabase): CapitalDao = database.capitalDao()
 
     @Provides
+    @Singleton
     fun provideTransactionDao(database: AppDatabase): TransactionDao = database.transactionDao()
 
     @Provides
+    @Singleton
     fun providePersonDao(database: AppDatabase): PersonDao = database.personDao()
+
+    @Provides
+    @Singleton
+    fun provideTransactionInventoryDao(database: AppDatabase): TransactionInventoryDao = database.transactionInventoryDao()
 }

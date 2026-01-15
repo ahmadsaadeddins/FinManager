@@ -5,18 +5,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.financialmanager.app.R
+import com.financialmanager.app.data.entities.EntityData
 import com.financialmanager.app.data.entities.OperationType
 import com.financialmanager.app.data.entities.RecentOperation
+import com.financialmanager.app.data.entities.TransactionType
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import java.text.NumberFormat
@@ -32,23 +38,18 @@ fun RecentOperationsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val operations by viewModel.operations.collectAsState()
 
-    // Show alert dialogs for messages
-    LaunchedEffect(uiState) {
-        // Messages will be shown in UI cards
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recent Operations") },
+                title = { Text(stringResource(R.string.recent_operations)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.loadRecentOperations() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
                     }
                 }
             )
@@ -71,7 +72,7 @@ fun RecentOperationsScreen(
             when (val currentState = uiState) {
                 is RecentOperationsUiState.DeleteSuccess -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = stringResource(currentState.messageRes),
                         icon = Icons.Default.CheckCircle,
                         color = MaterialTheme.colorScheme.primary,
                         onDismiss = { viewModel.clearMessage() }
@@ -79,7 +80,7 @@ fun RecentOperationsScreen(
                 }
                 is RecentOperationsUiState.DeleteError -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                         icon = Icons.Default.Error,
                         color = MaterialTheme.colorScheme.error,
                         onDismiss = { viewModel.clearMessage() }
@@ -87,7 +88,7 @@ fun RecentOperationsScreen(
                 }
                 is RecentOperationsUiState.Error -> {
                     AlertCard(
-                        message = currentState.message,
+                        message = "${stringResource(currentState.messageRes)}${currentState.dynamicMessage?.let { ": $it" } ?: ""}",
                         icon = Icons.Default.Error,
                         color = MaterialTheme.colorScheme.error,
                         onDismiss = { viewModel.clearMessage() }
@@ -117,12 +118,12 @@ fun RecentOperationsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Recent Operations",
+                        text = stringResource(R.string.recent_operations),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${operations.size} operations found",
+                        text = stringResource(R.string.operations_found, operations.size),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -158,11 +159,11 @@ fun RecentOperationsScreen(
                                 )
                                 Spacer(Modifier.height(16.dp))
                                 Text(
-                                    text = "No recent operations",
+                                    text = stringResource(R.string.no_recent_operations),
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
-                                    text = "Start adding transactions, people, or inventory items",
+                                    text = stringResource(R.string.start_adding_hint),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -194,8 +195,8 @@ fun OperationCard(
     operation: RecentOperation,
     onDelete: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-    val currencyFormat = NumberFormat.getCurrencyInstance()
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance() }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -249,12 +250,16 @@ fun OperationCard(
                 
                 // Amount (if applicable)
                 operation.amount?.let { amount ->
+                    val isExpense = when (operation.entityData) {
+                        is EntityData.OutTx -> operation.entityData.transaction.type == TransactionType.EXPENSE
+                        else -> false
+                    }
+                    
                     Text(
                         text = currencyFormat.format(amount),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (operation.type == OperationType.OUT_TRANSACTION && 
-                                   (operation.entityData as? com.financialmanager.app.data.entities.OutTransaction)?.type == "expense") {
+                        color = if (isExpense) {
                             MaterialTheme.colorScheme.error
                         } else {
                             MaterialTheme.colorScheme.primary
@@ -283,7 +288,7 @@ fun OperationCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text("Delete", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.delete), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -329,14 +334,14 @@ fun AlertCard(
                 )
             }
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Dismiss")
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dismiss))
             }
         }
     }
 }
 
 @Composable
-fun getOperationIcon(type: OperationType): androidx.compose.ui.graphics.vector.ImageVector {
+fun getOperationIcon(type: OperationType): ImageVector {
     return when (type) {
         OperationType.PERSON_ADDED -> Icons.Default.PersonAdd
         OperationType.PERSON_TRANSACTION -> Icons.Default.SwapHoriz
@@ -348,7 +353,7 @@ fun getOperationIcon(type: OperationType): androidx.compose.ui.graphics.vector.I
 }
 
 @Composable
-fun getOperationColor(type: OperationType): Color {
+fun getOperationColor(type: OperationType): androidx.compose.ui.graphics.Color {
     return when (type) {
         OperationType.PERSON_ADDED -> MaterialTheme.colorScheme.primary
         OperationType.PERSON_TRANSACTION -> MaterialTheme.colorScheme.secondary

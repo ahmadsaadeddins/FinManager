@@ -1,0 +1,228 @@
+<resources>
+    <string name="app_name">المدير المالي</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_inventory">المخزون</string>
+    <string name="nav_capital">رأس المال</string>
+    <string name="nav_transactions">المعاملات</string>
+    <string name="nav_people">الأشخاص</string>
+    <string name="nav_reports">التقارير</string>
+    <string name="nav_search">البحث</string>
+    <string name="home">الرئيسية</string>
+    <string name="reports">التقارير</string>
+    
+    <!-- Common -->
+    <string name="add">إضافة</string>
+    <string name="edit">تعديل</string>
+    <string name="delete">حذف</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="search">بحث</string>
+    <string name="filter">تصفية</string>
+    <string name="export">تصدير</string>
+    <string name="share">مشاركة</string>
+    <string name="wholesale">جملة</string>
+    <string name="refresh">تحديث</string>
+    <string name="ok">تم</string>
+    <string name="back">رجوع</string>
+    <string name="dismiss">تجاهل</string>
+    <string name="loading">جاري التحميل...</string>
+    <string name="type">النوع</string>
+    <string name="all">الكل</string>
+    <string name="name">الاسم</string>
+    <string name="qty_format">الكمية: %d</string>
+    <string name="wholesale_format">سعر الجملة: %s</string>
+    <string name="purchase_price_format">سعر الشراء: %s</string>
+    <string name="selling_price_format">سعر البيع: %s</string>
+    <string name="barcode_format">الباركود: %s</string>
+    <string name="no_description">بدون وصف</string>
+    
+    <!-- Inventory -->
+    <string name="inventory">المخزون</string>
+    <string name="add_item">إضافة صنف</string>
+    <string name="edit_item">تعديل صنف</string>
+    <string name="delete_item">حذف الصنف</string>
+    <string name="item_name">اسم الصنف</string>
+    <string name="category">الفئة</string>
+    <string name="quantity">الكمية</string>
+    <string name="purchase_price">سعر الشراء</string>
+    <string name="selling_price">سعر البيع</string>
+    <string name="wholesale_price">سعر الجملة</string>
+    <string name="barcode">الباركود</string>
+    <string name="scan_barcode">مسح الباركود</string>
+    <string name="notes">ملاحظات</string>
+    <string name="no_items">لم يتم العثور على أصناف</string>
+    <string name="search_items">البحث في الأصناف...</string>
+    <string name="delete_item_confirmation">هل أنت متأكد أنك تريد حذف %s؟</string>
+    
+    <!-- Capital -->
+    <string name="capital">رأس المال</string>
+    <string name="add_capital">إضافة معاملة رأس مال</string>
+    <string name="edit_capital">تعديل المعاملة</string>
+    <string name="amount">المبلغ</string>
+    <string name="source">المصدر</string>
+    <string name="date">التاريخ</string>
+    <string name="description">الوصف</string>
+    <string name="investment">استثمار</string>
+    <string name="withdrawal">سحب</string>
+    
+    <!-- Backup and Restore -->
+    <string name="backup_restore">النسخ الاحتياطي والاستعادة</string>
+    <string name="backup_restore_title">النسخ الاحتياطي والاستعادة</string>
+    <string name="backup">نسخة احتياطية</string>
+    <string name="restore">استعادة</string>
+    <string name="restoring">جاري الاستعادة...</string>
+    <string name="deleting">جاري الحذف...</string>
+    <string name="sign_in_google">تسجيل الدخول باستخدام جوجل</string>
+    <string name="sign_in_google_drive">تسجيل الدخول إلى Google Drive</string>
+    <string name="connect_google_account">قم بربط حساب Google الخاص بك للنسخ الاحتياطي واستعادة بياناتك</string>
+    <string name="google_drive_connected">تم الاتصال بـ Google Drive</string>
+    <string name="creating_backup">جاري إنشاء نسخة احتياطية...</string>
+    <string name="create_backup">إنشاء نسخة احتياطية</string>
+    <string name="refresh_backups">تحديث النسخ الاحتياطية</string>
+    <string name="available_backups">النسخ الاحتياطية المتاحة</string>
+    <string name="no_backups_found">لم يتم العثور على نسخ احتياطية</string>
+    <string name="create_backup_hint">أنشئ نسخة احتياطية للبدء</string>
+    <string name="auto_backup_settings">إعدادات النسخ الاحتياطي التلقائي</string>
+    <string name="auto_backup_on_exit">نسخ احتياطي تلقائي عند الخروج</string>
+    <string name="auto_backup_description">نسخ البيانات احتياطياً تلقائياً عند إغلاق التطبيق</string>
+    <string name="auto_backup_info">سيتم نسخ بياناتك احتياطياً تلقائياً إلى Google Drive عند الخروج من التطبيق</string>
+    <string name="backup_success">تم إنشاء النسخة الاحتياطية بنجاح</string>
+    <string name="restore_success">تم استعادة النسخة الاحتياطية بنجاح</string>
+    <string name="delete_success">تم حذف النسخة الاحتياطية بنجاح</string>
+    <string name="sign_in_failed">فشل تسجيل الدخول</string>
+    <string name="backup_not_allowed">النسخ الاحتياطي غير مسموح به في هذا الوقت</string>
+    <string name="please_sign_in_first">يرجى تسجيل الدخول أولاً</string>
+    <string name="backup_failed">فشل النسخ الاحتياطي</string>
+    <string name="failed_to_load_backups">فشل تحميل النسخ الاحتياطية</string>
+    <string name="restore_failed">فشلت الاستعادة</string>
+    
+    <!-- Sales Archive -->
+    <string name="sales_archive">أرشيف المبيعات</string>
+    <string name="sales_archive_title">أرشيف المبيعات</string>
+    <string name="active_sales">المبيعات النشطة</string>
+    <string name="archived_sales">المبيعات المؤرشفة</string>
+    <string name="archive_all_sales">أرشفة جميع المبيعات</string>
+    <string name="archive">أرشفة</string>
+    <string name="no_active_sales_title">لا توجد مبيعات نشطة</string>
+    <string name="no_active_sales_desc">لم يتم العثور على معاملات مبيعات. أضف بعض المبيعات لرؤيتها هنا.</string>
+    <string name="no_archived_sales_title">لا توجد مبيعات مؤرشفة</string>
+    <string name="no_archived_sales_desc">لم يتم العثور على مبيعات مؤرشفة. قم بأرشفة بعض المبيعات لرؤيتها هنا.</string>
+    <string name="archive_all_info">سيؤدي هذا إلى أرشفة جميع معاملات المبيعات الحالية:</string>
+    <string name="total_format">الإجمالي: %s</string>
+    <string name="archive_reset_info">بعد الأرشفة، سيتم تصفير إجمالي مبيعاتك الحالية.</string>
+    <string name="archived_format">تمت الأرشفة في: %s</string>
+    <string name="unarchive">استعادة من الأرشيف</string>
+    <string name="archive_success_format">تمت أرشفة %1$d من معاملات المبيعات بنجاح</string>
+    <string name="no_sales_to_archive">لا توجد معاملات مبيعات للأرشفة</string>
+    <string name="failed_to_archive_sales">فشلت أرشفة المبيعات</string>
+    <string name="transaction_restored_successfully">تم استعادة المعاملة بنجاح</string>
+    <string name="failed_to_restore_transaction">فشل استعادة المعاملة</string>
+    
+    <!-- Search -->
+    <string name="search_placeholder">بحث...</string>
+    <string name="search_hint">أدخل استعلام بحث للعثور على العناصر والمعاملات والأشخاص</string>
+    <string name="no_results">لم يتم العثور على نتائج</string>
+    <string name="search_transactions">البحث في المعاملات...</string>
+    <string name="search_people">البحث في الأشخاص...</string>
+    
+    <!-- People -->
+    <string name="people">الأشخاص</string>
+    <string name="person">شخص</string>
+    <string name="person_details">تفاصيل الشخص</string>
+    <string name="person_details_title">تفاصيل الشخص</string>
+    <string name="add_person">إضافة شخص</string>
+    <string name="edit_person">تعديل الشخص</string>
+    <string name="delete_person">حذف الشخص</string>
+    <string name="person_name">الاسم</string>
+    <string name="no_transactions_found">لم يتم العثور على معاملات</string>
+    <string name="phone">الهاتف</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="balance">الرصيد</string>
+    <string name="total_people">إجمالي الأشخاص</string>
+    <string name="positive_balance_count">رصيد إيجابي: %d</string>
+    <string name="they_owe_me">يدين لي</string>
+    <string name="i_owe_them">أدين لهم</string>
+    <string name="they_owe_you">يدينون لك بـ</string>
+    <string name="you_owe_them">تدين لهم بـ</string>
+    <string name="they_owe">يدين بـ</string>
+    <string name="you_owe">تدين بـ</string>
+    <string name="people_balance">رصيد الأشخاص</string>
+    <string name="delete_person_confirmation">هل أنت متأكد أنك تريد حذف %s؟</string>
+    <string name="from_person">من الشخص</string>
+    <string name="to_person">إلى الشخص</string>
+    <string name="transfer_between_people">تحويل بين الأشخاص</string>
+    <string name="transfer_summary">ملخص التحويل:</string>
+    <string name="transfer">تحويل</string>
+    <string name="no_people">لم يتم العثور على أشخاص</string>
+    
+    <!-- Transactions -->
+    <string name="transactions">المعاملات</string>
+    <string name="add_transaction">إضافة معاملة</string>
+    <string name="edit_transaction">تعديل المعاملة</string>
+    <string name="delete_transaction">حذف المعاملة</string>
+    <string name="expense">مصروف</string>
+    <string name="sale">بيع</string>
+    <string name="expenses">المصروفات</string>
+    <string name="sales">المبيعات</string>
+    <string name="transaction">معاملة</string>
+    <string name="transactions_count">%d معاملة</string>
+    <string name="delete_transaction_confirmation">هل أنت متأكد أنك تريد حذف هذه المعاملة؟</string>
+    <string name="no_transactions">لم يتم العثور على معاملات</string>
+    
+    <!-- Reports and Operations -->
+    <string name="recent_operations">العمليات الأخيرة</string>
+    <string name="view_recent_operations">عرض العمليات الأخيرة</string>
+    <string name="recent_operations_description">عرض وتعديل وحذف المعاملات والعمليات الأخيرة</string>
+    <string name="operations_found">تم العثور على %d عملية</string>
+    <string name="no_recent_operations">لا توجد عمليات حديثة</string>
+    <string name="start_adding_hint">ابدأ بإضافة معاملات أو أشخاص أو أصناف مخزون</string>
+    <string name="total_capital">إجمالي رأس المال</string>
+    <string name="net_capital">صافي رأس المال</string>
+    <string name="total_investments">إجمالي الاستثمارات</string>
+    <string name="total_withdrawals">إجمالي السحوبات</string>
+    <string name="inventory_value">قيمة المخزون</string>
+    <string name="total_sales">إجمالي المبيعات</string>
+    <string name="total_expenses">إجمالي المصروفات</string>
+    <string name="profit_loss">الربح/الخسارة</string>
+    <string name="frequently_used">متكرر الاستخدام</string>
+    <string name="amount_format">المبلغ: %s</string>
+    <string name="shared_successfully">تمت المشاركة بنجاح</string>
+    <string name="failed_to_load_recent_operations">فشل تحميل العمليات الأخيرة</string>
+    <string name="operation_deleted_successfully">تم حذف العملية بنجاح</string>
+    <string name="failed_to_delete_operation">فشل حذف العملية</string>
+    <string name="error_deleting_operation">خطأ في حذف العملية</string>
+    
+    <!-- Inventory Action Messages -->
+    <string name="failed_to_insert_item">فشل إدراج العنصر</string>
+    <string name="failed_to_update_item">فشل تحديث العنصر</string>
+    <string name="failed_to_delete_item">فشل حذف العنصر</string>
+    
+    <!-- Export -->
+    <string name="export_data">تصدير البيانات</string>
+    <string name="export_data_title">تصدير البيانات</string>
+    <string name="export_placeholder_info">ستتوفر وظيفة التصدير بعد إعداد حقن المستودع المناسب.</string>
+    <string name="export_success">تم تصدير البيانات بنجاح</string>
+    <string name="export_failed">فشل تصدير البيانات</string>
+    <string name="export_coming_soon">ستتوفر وظيفة التصدير بعد إعداد حقن المستودع بشكل صحيح.</string>
+    
+    <!-- Settings -->
+    <string name="settings">الإعدادات</string>
+    <string name="language">اللغة</string>
+    <string name="select_language">اختر اللغة</string>
+    <string name="language_system">تلقائي (حسب النظام)</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_changed">تم تغيير اللغة. أعد تشغيل التطبيق للتطبيق الكامل.</string>
+    <string name="restart_required">مطلوب إعادة التشغيل</string>
+    <string name="restart_now">إعادة التشغيل الآن</string>
+    <string name="later">لاحقاً</string>
+    
+    <!-- Misc -->
+    <string name="camera_permission_required">إذن الكاميرا مطلوب لمسح الباركود ضوئياً</string>
+    <string name="grant_permission">منح الإذن</string>
+    <string name="delete_confirmation">هل أنت متأكد أنك تريد حذف هذا العنصر؟</string>
+    <string name="select_inventory_item">اختر صنف من المخزون</string>
+    <string name="available_format">المتاح: %d</string>
+</resources>

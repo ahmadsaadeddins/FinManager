@@ -2,6 +2,7 @@ package com.financialmanager.app.data.repository
 
 import com.financialmanager.app.data.dao.TransactionDao
 import com.financialmanager.app.data.entities.OutTransaction
+import com.financialmanager.app.data.entities.TransactionType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +15,7 @@ class TransactionRepository @Inject constructor(
 
     suspend fun getTransactionById(id: Long): OutTransaction? = transactionDao.getTransactionById(id)
 
-    fun getTransactionsByType(type: String): Flow<List<OutTransaction>> =
+    fun getTransactionsByType(type: TransactionType): Flow<List<OutTransaction>> =
         transactionDao.getTransactionsByType(type)
 
     fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<OutTransaction>> =
@@ -58,6 +59,6 @@ class TransactionRepository @Inject constructor(
     
     fun getActiveSalesCount(): Flow<Int> = transactionDao.getActiveSalesCount()
     
-    fun getSaleTransactions(): Flow<List<OutTransaction>> = transactionDao.getTransactionsByType("sale")
+    fun getSaleTransactions(): Flow<List<OutTransaction>> = transactionDao.getTransactionsByType(TransactionType.SALE)
 }
 

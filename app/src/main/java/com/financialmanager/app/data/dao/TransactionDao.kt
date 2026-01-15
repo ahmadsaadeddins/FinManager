@@ -2,6 +2,7 @@ package com.financialmanager.app.data.dao
 
 import androidx.room.*
 import com.financialmanager.app.data.entities.OutTransaction
+import com.financialmanager.app.data.entities.TransactionType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,7 +14,7 @@ interface TransactionDao {
     suspend fun getTransactionById(id: Long): OutTransaction?
 
     @Query("SELECT * FROM out_transactions WHERE type = :type AND isArchived = 0 ORDER BY date DESC")
-    fun getTransactionsByType(type: String): Flow<List<OutTransaction>>
+    fun getTransactionsByType(type: TransactionType): Flow<List<OutTransaction>>
 
     @Query("SELECT * FROM out_transactions WHERE date BETWEEN :startDate AND :endDate AND isArchived = 0 ORDER BY date DESC")
     fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<OutTransaction>>

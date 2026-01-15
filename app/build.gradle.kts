@@ -61,6 +61,9 @@ kapt {
         option("--add-opens", "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED")
         option("--add-opens", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED")
         option("--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED")
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 }
 

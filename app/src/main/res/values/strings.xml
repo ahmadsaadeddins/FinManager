@@ -9,6 +9,8 @@
     <string name="nav_people">People</string>
     <string name="nav_reports">Reports</string>
     <string name="nav_search">Search</string>
+    <string name="home">Home</string>
+    <string name="reports">Reports</string>
     
     <!-- Common -->
     <string name="add">Add</string>
@@ -20,57 +22,207 @@
     <string name="filter">Filter</string>
     <string name="export">Export</string>
     <string name="share">Share</string>
+    <string name="wholesale">Wholesale</string>
+    <string name="refresh">Refresh</string>
+    <string name="ok">OK</string>
+    <string name="back">Back</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="loading">Loading…</string>
+    <string name="type">Type</string>
+    <string name="all">All</string>
+    <string name="name">Name</string>
+    <string name="qty_format">Qty: %d</string>
+    <string name="wholesale_format">Wholesale: %s</string>
+    <string name="purchase_price_format">Purchase Price: %s</string>
+    <string name="selling_price_format">Selling Price: %s</string>
+    <string name="barcode_format">Barcode: %s</string>
+    <string name="no_description">No description</string>
     
     <!-- Inventory -->
     <string name="inventory">Inventory</string>
     <string name="add_item">Add Item</string>
     <string name="edit_item">Edit Item</string>
+    <string name="delete_item">Delete Item</string>
     <string name="item_name">Item Name</string>
     <string name="category">Category</string>
     <string name="quantity">Quantity</string>
     <string name="purchase_price">Purchase Price</string>
     <string name="selling_price">Selling Price</string>
     <string name="wholesale_price">Wholesale Price</string>
+    <string name="barcode">Barcode</string>
+    <string name="scan_barcode">Scan Barcode</string>
     <string name="notes">Notes</string>
+    <string name="no_items">No items found</string>
+    <string name="search_items">Search items...</string>
+    <string name="delete_item_confirmation">Are you sure you want to delete %s?</string>
     
     <!-- Capital -->
     <string name="capital">Capital</string>
     <string name="add_capital">Add Capital Transaction</string>
+    <string name="edit_capital">Edit Transaction</string>
     <string name="amount">Amount</string>
     <string name="source">Source</string>
     <string name="date">Date</string>
     <string name="description">Description</string>
-    <string name="type">Type</string>
     <string name="investment">Investment</string>
     <string name="withdrawal">Withdrawal</string>
+    
+    <!-- Backup and Restore -->
+    <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="backup_restore_title">Backup &amp; Restore</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
+    <string name="restoring">Restoring…</string>
+    <string name="deleting">Deleting…</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="sign_in_google_drive">Sign in to Google Drive</string>
+    <string name="connect_google_account">Connect your Google account to backup and restore your data</string>
+    <string name="google_drive_connected">Google Drive Connected</string>
+    <string name="creating_backup">Creating Backup…</string>
+    <string name="create_backup">Create Backup</string>
+    <string name="refresh_backups">Refresh Backups</string>
+    <string name="available_backups">Available Backups</string>
+    <string name="no_backups_found">No backups found</string>
+    <string name="create_backup_hint">Create a backup to get started</string>
+    <string name="auto_backup_settings">Auto Backup Settings</string>
+    <string name="auto_backup_on_exit">Auto Backup on Exit</string>
+    <string name="auto_backup_description">Automatically backup data when closing the app</string>
+    <string name="auto_backup_info">Your data will be automatically backed up to Google Drive when you exit the app</string>
+    <string name="backup_success">Backup created successfully</string>
+    <string name="restore_success">Backup restored successfully</string>
+    <string name="delete_success">Backup deleted successfully</string>
+    <string name="sign_in_failed">Sign-in failed</string>
+    <string name="backup_not_allowed">Backup not allowed at this time</string>
+    <string name="please_sign_in_first">Please sign in first</string>
+    <string name="backup_failed">Backup failed</string>
+    <string name="failed_to_load_backups">Failed to load backups</string>
+    <string name="restore_failed">Restore failed</string>
+    
+    <!-- Sales Archive -->
+    <string name="sales_archive">Sales Archive</string>
+    <string name="sales_archive_title">Sales Archive</string>
+    <string name="active_sales">Active Sales</string>
+    <string name="archived_sales">Archived Sales</string>
+    <string name="archive_all_sales">Archive All Sales</string>
+    <string name="archive">Archive</string>
+    <string name="no_active_sales_title">No Active Sales</string>
+    <string name="no_active_sales_desc">No sales transactions found. Add some sales to see them here.</string>
+    <string name="no_archived_sales_title">No Archived Sales</string>
+    <string name="no_archived_sales_desc">No archived sales found. Archive some sales to see them here.</string>
+    <string name="archive_all_info">This will archive all current sales transactions:</string>
+    <string name="total_format">Total: %s</string>
+    <string name="archive_reset_info">After archiving, your current sales total will be reset to 0.00</string>
+    <string name="archived_format">Archived: %s</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="archive_success_format">Successfully archived %1$d sales transactions</string>
+    <string name="no_sales_to_archive">No sales transactions to archive</string>
+    <string name="failed_to_archive_sales">Failed to archive sales</string>
+    <string name="transaction_restored_successfully">Transaction restored successfully</string>
+    <string name="failed_to_restore_transaction">Failed to restore transaction</string>
+    
+    <!-- Search -->
+    <string name="search_placeholder">Search…</string>
+    <string name="search_hint">Enter a search query to find items, transactions, and people</string>
+    <string name="no_results">No results found</string>
+    <string name="search_transactions">Search transactions...</string>
+    <string name="search_people">Search people...</string>
+    
+    <!-- People -->
+    <string name="people">People</string>
+    <string name="person">Person</string>
+    <string name="person_details">Person Details</string>
+    <string name="person_details_title">Person Details</string>
+    <string name="add_person">Add Person</string>
+    <string name="edit_person">Edit Person</string>
+    <string name="delete_person">Delete Person</string>
+    <string name="person_name">Name</string>
+    <string name="no_transactions_found">No transactions found</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="balance">Balance</string>
+    <string name="total_people">Total People</string>
+    <string name="positive_balance_count">Positive Balance: %d</string>
+    <string name="they_owe_me">They Owe Me</string>
+    <string name="i_owe_them">I Owe Them</string>
+    <string name="they_owe_you">They owe you</string>
+    <string name="you_owe_them">You owe them</string>
+    <string name="they_owe">They owe</string>
+    <string name="you_owe">You owe</string>
+    <string name="people_balance">People Balance</string>
+    <string name="delete_person_confirmation">Are you sure you want to delete %s?</string>
+    <string name="from_person">From Person</string>
+    <string name="to_person">To Person</string>
+    <string name="transfer_between_people">Transfer Between People</string>
+    <string name="transfer_summary">Transfer Summary:</string>
+    <string name="transfer">Transfer</string>
+    <string name="no_people">No people found</string>
     
     <!-- Transactions -->
     <string name="transactions">Transactions</string>
     <string name="add_transaction">Add Transaction</string>
+    <string name="edit_transaction">Edit Transaction</string>
+    <string name="delete_transaction">Delete Transaction</string>
     <string name="expense">Expense</string>
     <string name="sale">Sale</string>
+    <string name="expenses">Expenses</string>
+    <string name="sales">Sales</string>
+    <string name="transaction">Transaction</string>
+    <string name="transactions_count">%d transactions</string>
+    <string name="delete_transaction_confirmation">Are you sure you want to delete this transaction?</string>
+    <string name="no_transactions">No transactions found</string>
     
-    <!-- People -->
-    <string name="people">People</string>
-    <string name="add_person">Add Person</string>
-    <string name="person_name">Name</string>
-    <string name="phone">Phone</string>
-    <string name="email">Email</string>
-    <string name="balance">Balance</string>
-    <string name="they_owe_me">They Owe Me</string>
-    <string name="i_owe_them">I Owe Them</string>
-    
-    <!-- Reports -->
-    <string name="reports">Reports</string>
+    <!-- Reports and Operations -->
+    <string name="recent_operations">Recent Operations</string>
+    <string name="view_recent_operations">View Recent Operations</string>
+    <string name="recent_operations_description">View, edit, and delete recent transactions and operations</string>
+    <string name="operations_found">%d operations found</string>
+    <string name="no_recent_operations">No recent operations</string>
+    <string name="start_adding_hint">Start adding transactions, people, or inventory items</string>
     <string name="total_capital">Total Capital</string>
+    <string name="net_capital">Net Capital</string>
+    <string name="total_investments">Total Investments</string>
+    <string name="total_withdrawals">Total Withdrawals</string>
     <string name="inventory_value">Inventory Value</string>
-    <string name="total_expenses">Total Expenses</string>
     <string name="total_sales">Total Sales</string>
+    <string name="total_expenses">Total Expenses</string>
     <string name="profit_loss">Profit/Loss</string>
+    <string name="frequently_used">Frequently Used</string>
+    <string name="amount_format">Amount: %s</string>
+    <string name="shared_successfully">Shared successfully</string>
+    <string name="failed_to_load_recent_operations">Failed to load recent operations</string>
+    <string name="operation_deleted_successfully">Operation deleted successfully</string>
+    <string name="failed_to_delete_operation">Failed to delete operation</string>
+    <string name="error_deleting_operation">Error deleting operation</string>
     
-    <!-- Messages -->
-    <string name="delete_confirmation">Are you sure you want to delete this item?</string>
+    <!-- Inventory Action Messages -->
+    <string name="failed_to_insert_item">Failed to insert item</string>
+    <string name="failed_to_update_item">Failed to update item</string>
+    <string name="failed_to_delete_item">Failed to delete item</string>
+    
+    <!-- Export -->
+    <string name="export_data">Export Data</string>
+    <string name="export_data_title">Export Data</string>
+    <string name="export_placeholder_info">Export functionality will be available after proper repository injection is set up.</string>
     <string name="export_success">Data exported successfully</string>
     <string name="export_failed">Failed to export data</string>
+    <string name="export_coming_soon">Export functionality will be available after proper repository injection is set up.</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select Language</string>
+    <string name="language_system">System Default</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_changed">Language changed. Restart app for full effect.</string>
+    <string name="restart_required">Restart Required</string>
+    <string name="restart_now">Restart Now</string>
+    <string name="later">Later</string>
+    
+    <!-- Misc -->
+    <string name="camera_permission_required">Camera permission is required to scan barcodes</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="delete_confirmation">Are you sure you want to delete this item?</string>
+    <string name="select_inventory_item">Select Inventory Item</string>
+    <string name="available_format">Available: %d</string>
 </resources>
-

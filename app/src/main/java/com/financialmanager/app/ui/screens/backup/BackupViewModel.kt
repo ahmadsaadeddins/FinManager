@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.financialmanager.app.R
 import javax.inject.Inject
 
 sealed class BackupUiState {
@@ -18,16 +19,16 @@ sealed class BackupUiState {
     object SigningIn : BackupUiState()
     data class SignedIn(val accountName: String) : BackupUiState()
     object CreatingBackup : BackupUiState()
-    data class BackupSuccess(val message: String) : BackupUiState()
-    data class BackupError(val message: String) : BackupUiState()
+    data class BackupSuccess(val messageRes: Int, val messageArg: String? = null) : BackupUiState()
+    data class BackupError(val messageRes: Int, val dynamicMessage: String? = null) : BackupUiState()
     object ListingBackups : BackupUiState()
     data class BackupsListed(val backups: List<File>) : BackupUiState()
     object Restoring : BackupUiState()
-    data class RestoreSuccess(val message: String) : BackupUiState()
-    data class RestoreError(val message: String) : BackupUiState()
+    data class RestoreSuccess(val messageRes: Int, val messageArg: String? = null) : BackupUiState()
+    data class RestoreError(val messageRes: Int, val dynamicMessage: String? = null) : BackupUiState()
     object DeletingBackup : BackupUiState()
-    data class DeleteSuccess(val message: String) : BackupUiState()
-    data class DeleteError(val message: String) : BackupUiState()
+    data class DeleteSuccess(val messageRes: Int, val messageArg: String? = null) : BackupUiState()
+    data class DeleteError(val messageRes: Int, val dynamicMessage: String? = null) : BackupUiState()
 }
 
 @HiltViewModel
@@ -59,7 +60,7 @@ class BackupViewModel @Inject constructor(
                 userPreferences.setGoogleAccountName(accountName)
                 _uiState.value = BackupUiState.SignedIn(accountName)
             } catch (e: Exception) {
-                _uiState.value = BackupUiState.BackupError("Sign-in failed: ${e.message}")
+                _uiState.value = BackupUiState.BackupError(R.string.sign_in_failed, e.message)
             }
         }
     }
@@ -69,7 +70,7 @@ class BackupViewModel @Inject constructor(
             // Manual backups are always allowed regardless of changes
             // Users might want to create a backup even if no changes were made
             if (!backupThrottler.shouldAllowManualBackup()) {
-                _uiState.value = BackupUiState.BackupError("Backup not allowed at this time")
+                _uiState.value = BackupUiState.BackupError(R.string.backup_not_allowed)
                 return@launch
             }
             
@@ -78,7 +79,7 @@ class BackupViewModel @Inject constructor(
             
             try {
                 if (!backupService.isInitialized()) {
-                    _uiState.value = BackupUiState.BackupError("Please sign in first")
+                    _uiState.value = BackupUiState.BackupError(R.string.please_sign_in_first)
                     backupThrottler.markManualBackupCompleted(false)
                     return@launch
                 }
@@ -88,16 +89,16 @@ class BackupViewModel @Inject constructor(
                 
                 result.fold(
                     onSuccess = { message ->
-                        _uiState.value = BackupUiState.BackupSuccess(message)
+                        _uiState.value = BackupUiState.BackupSuccess(R.string.backup_success, message)
                         backupSuccess = true
                         loadBackups()
                     },
                     onFailure = { error ->
-                        _uiState.value = BackupUiState.BackupError("Backup failed: ${error.message}")
+                        _uiState.value = BackupUiState.BackupError(R.string.backup_failed, error.message)
                     }
                 )
             } catch (e: Exception) {
-                _uiState.value = BackupUiState.BackupError("Backup failed: ${e.message}")
+                _uiState.value = BackupUiState.BackupError(R.string.backup_failed, e.message)
             } finally {
                 backupThrottler.markManualBackupCompleted(backupSuccess)
             }
@@ -109,7 +110,7 @@ class BackupViewModel @Inject constructor(
             _uiState.value = BackupUiState.ListingBackups
             try {
                 if (!backupService.isInitialized()) {
-                    _uiState.value = BackupUiState.BackupError("Please sign in first")
+                    _uiState.value = BackupUiState.BackupError(R.string.please_sign_in_first)
                     return@launch
                 }
 
@@ -120,11 +121,11 @@ class BackupViewModel @Inject constructor(
                         _uiState.value = BackupUiState.BackupsListed(backupsList)
                     },
                     onFailure = { error ->
-                        _uiState.value = BackupUiState.BackupError("Failed to load backups: ${error.message}")
+                        _uiState.value = BackupUiState.BackupError(R.string.failed_to_load_backups, error.message)
                     }
                 )
             } catch (e: Exception) {
-                _uiState.value = BackupUiState.BackupError("Failed to load backups: ${e.message}")
+                _uiState.value = BackupUiState.BackupError(R.string.failed_to_load_backups, e.message)
             }
         }
     }
@@ -134,21 +135,21 @@ class BackupViewModel @Inject constructor(
             _uiState.value = BackupUiState.Restoring
             try {
                 if (!backupService.isInitialized()) {
-                    _uiState.value = BackupUiState.BackupError("Please sign in first")
+                    _uiState.value = BackupUiState.BackupError(R.string.please_sign_in_first)
                     return@launch
                 }
 
                 val result = backupService.restoreDatabase(fileId)
                 result.fold(
                     onSuccess = { message ->
-                        _uiState.value = BackupUiState.RestoreSuccess(message)
+                        _uiState.value = BackupUiState.RestoreSuccess(R.string.restore_success, message)
                     },
                     onFailure = { error ->
-                        _uiState.value = BackupUiState.RestoreError("Restore failed: ${error.message}")
+                        _uiState.value = BackupUiState.RestoreError(R.string.restore_failed, error.message)
                     }
                 )
             } catch (e: Exception) {
-                _uiState.value = BackupUiState.RestoreError("Restore failed: ${e.message}")
+                _uiState.value = BackupUiState.RestoreError(R.string.restore_failed, e.message)
             }
         }
     }
@@ -158,22 +159,22 @@ class BackupViewModel @Inject constructor(
             _uiState.value = BackupUiState.DeletingBackup
             try {
                 if (!backupService.isInitialized()) {
-                    _uiState.value = BackupUiState.DeleteError("Please sign in first")
+                    _uiState.value = BackupUiState.DeleteError(R.string.please_sign_in_first)
                     return@launch
                 }
 
                 val result = backupService.deleteBackup(fileId)
                 result.fold(
                     onSuccess = { message ->
-                        _uiState.value = BackupUiState.DeleteSuccess(message)
+                        _uiState.value = BackupUiState.DeleteSuccess(R.string.delete_success, message)
                         loadBackups() // Refresh the list after deletion
                     },
                     onFailure = { error ->
-                        _uiState.value = BackupUiState.DeleteError("Delete failed: ${error.message}")
+                        _uiState.value = BackupUiState.DeleteError(R.string.failed_to_delete_operation, error.message)
                     }
                 )
             } catch (e: Exception) {
-                _uiState.value = BackupUiState.DeleteError("Delete failed: ${e.message}")
+                _uiState.value = BackupUiState.DeleteError(R.string.failed_to_delete_operation, e.message)
             }
         }
     }

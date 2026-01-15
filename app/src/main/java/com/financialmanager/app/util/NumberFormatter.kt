@@ -1,4 +1,4 @@
-package com.financialmanager.app.utils
+package com.financialmanager.app.util
 
 import java.text.NumberFormat
 import java.util.*

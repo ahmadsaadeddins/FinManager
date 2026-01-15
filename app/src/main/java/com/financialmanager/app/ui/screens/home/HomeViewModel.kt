@@ -33,7 +33,10 @@ class HomeViewModel @Inject constructor(
     val totalPeopleBalance = personRepository.getTotalPeopleBalance()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    // New profit/loss formula: (Inventory Value + People Balance + Expenses) - Capital
+    // Profit/loss formula: Inventory Value - People Balance - Expenses - Capital
+    // Note: People Balance and Expenses are inverted in the calculation since they represent
+    // amounts owed to people and money spent (negative cash flow), respectively.
+    // This combine operation is safe from memory leaks as it's immediately converted to StateFlow.
     val profitLoss = combine(
         totalInventoryValue, 
         totalPeopleBalance, 
