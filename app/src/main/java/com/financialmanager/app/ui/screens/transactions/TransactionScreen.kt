@@ -48,6 +48,9 @@ fun TransactionScreen(
             TopAppBar(
                 title = { Text("Transactions") },
                 actions = {
+                    IconButton(onClick = { navController.navigate(Screen.SalesArchive.route) }) {
+                        Icon(Icons.Default.Archive, contentDescription = "Sales Archive")
+                    }
                     IconButton(onClick = { showAddDialog = true }) {
                         Icon(Icons.Default.Add, contentDescription = "Add Transaction")
                     }

@@ -1,11 +1,9 @@
 package com.financialmanager.app.ui.screens.inventory
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financialmanager.app.data.entities.InventoryItem
 import com.financialmanager.app.data.repository.InventoryRepository
-import com.financialmanager.app.util.InventoryImporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -61,19 +59,6 @@ class InventoryViewModel @Inject constructor(
     fun deleteItem(item: InventoryItem) {
         viewModelScope.launch {
             repository.deleteItem(item)
-        }
-    }
-
-    fun importFromExcel(context: Context) {
-        viewModelScope.launch {
-            try {
-                val items = InventoryImporter.importFromAssets(context)
-                if (items.isNotEmpty()) {
-                    repository.insertItems(items)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
     }
 }

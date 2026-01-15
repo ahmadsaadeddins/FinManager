@@ -1,6 +1,5 @@
 package com.financialmanager.app.ui.screens.inventory
 
-import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextRange
@@ -41,17 +39,12 @@ fun InventoryScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<InventoryItem?>(null) }
     var showDeleteDialog by remember { mutableStateOf<InventoryItem?>(null) }
-    var showImportDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Inventory") },
                 actions = {
-                    IconButton(onClick = { showImportDialog = true }) {
-                        Icon(Icons.Default.Upload, contentDescription = "Import from Excel")
-                    }
                     IconButton(onClick = { showAddDialog = true }) {
                         Icon(Icons.Default.Add, contentDescription = "Add Item")
                     }
@@ -177,30 +170,6 @@ fun InventoryScreen(
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteDialog = null }) {
-                            Text("Cancel")
-                        }
-                    }
-                )
-            }
-
-            // Import Dialog
-            if (showImportDialog) {
-                AlertDialog(
-                    onDismissRequest = { showImportDialog = false },
-                    title = { Text("Import from Excel") },
-                    text = { Text("This will import all items from the Excel file (inventory_items.json). Existing items with the same name will be updated.") },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.importFromExcel(context)
-                                showImportDialog = false
-                            }
-                        ) {
-                            Text("Import")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showImportDialog = false }) {
                             Text("Cancel")
                         }
                     }

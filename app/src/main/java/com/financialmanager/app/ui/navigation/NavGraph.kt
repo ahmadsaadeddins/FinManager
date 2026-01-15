@@ -11,6 +11,8 @@ import com.financialmanager.app.ui.screens.inventory.InventoryScreen
 import com.financialmanager.app.ui.screens.people.PeopleScreen
 import com.financialmanager.app.ui.screens.people.PersonDetailScreen
 import com.financialmanager.app.ui.screens.reports.ReportsScreen
+import com.financialmanager.app.ui.screens.reports.RecentOperationsScreen
+import com.financialmanager.app.ui.screens.archive.SalesArchiveScreen
 import com.financialmanager.app.ui.screens.search.SearchScreen
 import com.financialmanager.app.ui.screens.transactions.TransactionScreen
 
@@ -24,6 +26,8 @@ sealed class Screen(val route: String) {
         fun createRoute(personId: Long) = "person_detail/$personId"
     }
     object Reports : Screen("reports")
+    object RecentOperations : Screen("recent_operations")
+    object SalesArchive : Screen("sales_archive")
     object Search : Screen("search")
     object Backup : Screen("backup")
 }
@@ -58,6 +62,12 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Reports.route) {
             ReportsScreen(navController = navController)
+        }
+        composable(Screen.RecentOperations.route) {
+            RecentOperationsScreen(navController = navController)
+        }
+        composable(Screen.SalesArchive.route) {
+            SalesArchiveScreen(navController = navController)
         }
         composable(Screen.Search.route) {
             SearchScreen(navController = navController)

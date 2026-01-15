@@ -38,5 +38,9 @@ interface CapitalDao {
 
     @Query("DELETE FROM capital_transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: Long)
+    
+    // Recent operations queries
+    @Query("SELECT * FROM capital_transactions ORDER BY createdAt DESC LIMIT :limit")
+    fun getRecentTransactions(limit: Int): Flow<List<CapitalTransaction>>
 }
 

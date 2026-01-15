@@ -96,7 +96,7 @@ class GoogleDriveBackupService @Inject constructor(
         }
     }
 
-    suspend fun uploadDatabase(folderId: String? = null): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun uploadDatabase(folderId: String? = null, isAutoBackup: Boolean = false): Result<String> = withContext(Dispatchers.IO) {
         try {
             val service = driveService ?: return@withContext Result.failure(
                 IllegalStateException("Drive service not initialized. Please sign in first.")
@@ -137,35 +137,107 @@ class GoogleDriveBackupService @Inject constructor(
             }
             Log.d(TAG, "Backup folder ID: $targetFolderId")
 
-            // Check if backup already exists and delete it
-            findExistingBackup(targetFolderId)?.let { existingFile ->
-                Log.d(TAG, "Deleting existing backup: ${existingFile.id}")
-                service.files().delete(existingFile.id).execute()
-                Log.d(TAG, "Deleted existing backup: ${existingFile.id}")
+            // Check if backup already exists and handle based on backup type
+            if (isAutoBackup) {
+                // For automatic backups, always overwrite the same file
+                val autoBackupFile = findAutoBackupFile(targetFolderId)
+                if (autoBackupFile != null) {
+                    try {
+                        Log.d(TAG, "Updating existing auto backup: ${autoBackupFile.id}")
+                        // Update the existing file instead of creating a new one
+                        val fileName = "auto_backup_${DATABASE_NAME}.db"
+                        val fileMetadata = File().apply {
+                            name = fileName
+                        }
+                        Log.d(TAG, "Updating auto backup file: $fileName, size: ${databaseFile.length()} bytes")
+
+                        val mediaContent = FileContent(MIME_TYPE, databaseFile)
+                        val updatedFile = service.files().update(autoBackupFile.id, fileMetadata, mediaContent)
+                            .setFields("id, name, size")
+                            .execute()
+
+                        Log.d(TAG, "Auto backup updated successfully!")
+                        Log.d(TAG, "Updated file ID: ${updatedFile.id}")
+                        Log.d(TAG, "Updated file name: ${updatedFile.name}")
+                        Log.d(TAG, "Updated file size: ${updatedFile.size} bytes")
+                        return@withContext Result.success("Auto backup updated successfully: ${updatedFile.name}")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not update existing auto backup, will create new one: ${e.message}")
+                        // Fall through to create new file
+                    }
+                }
+                
+                // Create new auto backup file
+                val fileName = "auto_backup_${DATABASE_NAME}.db"
+                val fileMetadata = File().apply {
+                    name = fileName
+                    parents = listOf(targetFolderId)
+                }
+                Log.d(TAG, "Creating new auto backup file: $fileName, size: ${databaseFile.length()} bytes")
+
+                val mediaContent = FileContent(MIME_TYPE, databaseFile)
+                val uploadedFile = service.files().create(fileMetadata, mediaContent)
+                    .setFields("id, name, size")
+                    .execute()
+
+                Log.d(TAG, "Auto backup created successfully!")
+                Log.d(TAG, "Created file ID: ${uploadedFile.id}")
+                Log.d(TAG, "Created file name: ${uploadedFile.name}")
+                Log.d(TAG, "Created file size: ${uploadedFile.size} bytes")
+                Result.success("Auto backup created successfully: ${uploadedFile.name}")
+            } else {
+                // For manual backups, create new files with timestamps (existing behavior)
+                findExistingBackup(targetFolderId)?.let { existingFile ->
+                    try {
+                        Log.d(TAG, "Deleting existing manual backup: ${existingFile.id}")
+                        service.files().delete(existingFile.id).execute()
+                        Log.d(TAG, "Deleted existing manual backup: ${existingFile.id}")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not delete existing manual backup (file may not exist): ${e.message}")
+                        // Continue with backup creation even if deletion fails
+                    }
+                }
+
+                // Create file metadata with timestamp
+                val fileName = "${DATABASE_NAME}_${System.currentTimeMillis()}.db"
+                val fileMetadata = File().apply {
+                    name = fileName
+                    parents = listOf(targetFolderId)
+                }
+                Log.d(TAG, "Creating manual backup file: $fileName, size: ${databaseFile.length()} bytes")
+
+                // Upload the file
+                val mediaContent = FileContent(MIME_TYPE, databaseFile)
+                val uploadedFile = service.files().create(fileMetadata, mediaContent)
+                    .setFields("id, name, size")
+                    .execute()
+
+                Log.d(TAG, "Manual backup created successfully!")
+                Log.d(TAG, "Created file ID: ${uploadedFile.id}")
+                Log.d(TAG, "Created file name: ${uploadedFile.name}")
+                Log.d(TAG, "Created file size: ${uploadedFile.size} bytes")
+                Result.success("Manual backup created successfully: ${uploadedFile.name}")
             }
-
-            // Create file metadata
-            val fileName = "${DATABASE_NAME}_${System.currentTimeMillis()}.db"
-            val fileMetadata = File().apply {
-                name = fileName
-                parents = listOf(targetFolderId)
-            }
-            Log.d(TAG, "Uploading database file: $fileName, size: ${databaseFile.length()} bytes")
-
-            // Upload the file
-            val mediaContent = FileContent(MIME_TYPE, databaseFile)
-            val uploadedFile = service.files().create(fileMetadata, mediaContent)
-                .setFields("id, name, size")
-                .execute()
-
-            Log.d(TAG, "Backup uploaded successfully!")
-            Log.d(TAG, "Uploaded file ID: ${uploadedFile.id}")
-            Log.d(TAG, "Uploaded file name: ${uploadedFile.name}")
-            Log.d(TAG, "Uploaded file size: ${uploadedFile.size} bytes")
-            Result.success("Backup created successfully: ${uploadedFile.name}")
         } catch (e: Exception) {
             Log.e(TAG, "Error uploading database", e)
             Result.failure(e)
+        }
+    }
+
+    private suspend fun findAutoBackupFile(folderId: String): File? = withContext(Dispatchers.IO) {
+        try {
+            val service = driveService ?: return@withContext null
+
+            val query = "'$folderId' in parents and name = 'auto_backup_${DATABASE_NAME}.db' and trashed=false"
+            val result = service.files().list()
+                .setQ(query)
+                .setFields("files(id, name, modifiedTime)")
+                .execute()
+
+            result.files.firstOrNull()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error finding auto backup file", e)
+            null
         }
     }
 
@@ -173,7 +245,8 @@ class GoogleDriveBackupService @Inject constructor(
         try {
             val service = driveService ?: return@withContext null
 
-            val query = "'$folderId' in parents and name contains '$DATABASE_NAME' and trashed=false"
+            // Only look for manual backups (timestamped files), not auto backups
+            val query = "'$folderId' in parents and name contains '$DATABASE_NAME' and name contains '_' and not name = 'auto_backup_${DATABASE_NAME}.db' and trashed=false"
             val result = service.files().list()
                 .setQ(query)
                 .setOrderBy("modifiedTime desc")
@@ -182,7 +255,7 @@ class GoogleDriveBackupService @Inject constructor(
 
             result.files.firstOrNull()
         } catch (e: Exception) {
-            Log.e(TAG, "Error finding existing backup", e)
+            Log.e(TAG, "Error finding existing manual backup", e)
             null
         }
     }
@@ -454,6 +527,29 @@ class GoogleDriveBackupService @Inject constructor(
             Log.e(TAG, "Exception type: ${e.javaClass.simpleName}")
             Log.e(TAG, "Exception message: ${e.message}")
             e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteBackup(fileId: String): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Deleting backup file. File ID: $fileId")
+            val service = driveService ?: return@withContext Result.failure(
+                IllegalStateException("Drive service not initialized. Please sign in first.")
+            )
+
+            // Get file metadata first to get the name for logging
+            val fileMetadata = service.files().get(fileId).setFields("id, name").execute()
+            Log.d(TAG, "Deleting backup: ${fileMetadata.name}")
+
+            // Delete the file
+            service.files().delete(fileId).execute()
+            
+            Log.d(TAG, "Backup deleted successfully: ${fileMetadata.name}")
+            Result.success("Backup deleted successfully: ${fileMetadata.name}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting backup", e)
+            Log.e(TAG, "Delete error - Type: ${e.javaClass.simpleName}, Message: ${e.message}")
             Result.failure(e)
         }
     }

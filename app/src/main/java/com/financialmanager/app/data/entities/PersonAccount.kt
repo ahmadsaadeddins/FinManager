@@ -10,6 +10,8 @@ data class PersonAccount(
     val name: String,
     val phone: String? = null,
     val email: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val usageCount: Int = 0,
+    val lastUsedAt: Long = System.currentTimeMillis()
 )
 

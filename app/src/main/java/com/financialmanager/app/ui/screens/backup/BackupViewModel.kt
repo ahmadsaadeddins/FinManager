@@ -2,7 +2,9 @@ package com.financialmanager.app.ui.screens.backup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.service.GoogleDriveBackupService
+import com.financialmanager.app.util.BackupThrottler
 import com.google.api.services.drive.model.File
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +25,16 @@ sealed class BackupUiState {
     object Restoring : BackupUiState()
     data class RestoreSuccess(val message: String) : BackupUiState()
     data class RestoreError(val message: String) : BackupUiState()
+    object DeletingBackup : BackupUiState()
+    data class DeleteSuccess(val message: String) : BackupUiState()
+    data class DeleteError(val message: String) : BackupUiState()
 }
 
 @HiltViewModel
 class BackupViewModel @Inject constructor(
-    private val backupService: GoogleDriveBackupService
+    private val backupService: GoogleDriveBackupService,
+    private val userPreferences: UserPreferences,
+    private val backupThrottler: BackupThrottler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -39,12 +46,17 @@ class BackupViewModel @Inject constructor(
     private val _accountEmail = MutableStateFlow<String?>(null)
     val accountEmail: StateFlow<String?> = _accountEmail.asStateFlow()
 
+    // Auto backup settings
+    val autoBackupEnabled = userPreferences.autoBackupEnabled
+
     fun signIn(accountName: String) {
         viewModelScope.launch {
             _uiState.value = BackupUiState.SigningIn
             try {
                 backupService.initializeDriveService(accountName)
                 _accountEmail.value = accountName
+                // Save account name to preferences for auto backup
+                userPreferences.setGoogleAccountName(accountName)
                 _uiState.value = BackupUiState.SignedIn(accountName)
             } catch (e: Exception) {
                 _uiState.value = BackupUiState.BackupError("Sign-in failed: ${e.message}")
@@ -54,19 +66,30 @@ class BackupViewModel @Inject constructor(
 
     fun createBackup() {
         viewModelScope.launch {
+            // Manual backups are always allowed regardless of changes
+            // Users might want to create a backup even if no changes were made
+            if (!backupThrottler.shouldAllowManualBackup()) {
+                _uiState.value = BackupUiState.BackupError("Backup not allowed at this time")
+                return@launch
+            }
+            
             _uiState.value = BackupUiState.CreatingBackup
+            var backupSuccess = false
+            
             try {
                 if (!backupService.isInitialized()) {
                     _uiState.value = BackupUiState.BackupError("Please sign in first")
+                    backupThrottler.markManualBackupCompleted(false)
                     return@launch
                 }
 
                 val folderId = backupService.createBackupFolder()
-                val result = backupService.uploadDatabase(folderId)
+                val result = backupService.uploadDatabase(folderId, isAutoBackup = false)
                 
                 result.fold(
                     onSuccess = { message ->
                         _uiState.value = BackupUiState.BackupSuccess(message)
+                        backupSuccess = true
                         loadBackups()
                     },
                     onFailure = { error ->
@@ -75,6 +98,8 @@ class BackupViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 _uiState.value = BackupUiState.BackupError("Backup failed: ${e.message}")
+            } finally {
+                backupThrottler.markManualBackupCompleted(backupSuccess)
             }
         }
     }
@@ -128,8 +153,35 @@ class BackupViewModel @Inject constructor(
         }
     }
 
+    fun deleteBackup(fileId: String) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.DeletingBackup
+            try {
+                if (!backupService.isInitialized()) {
+                    _uiState.value = BackupUiState.DeleteError("Please sign in first")
+                    return@launch
+                }
+
+                val result = backupService.deleteBackup(fileId)
+                result.fold(
+                    onSuccess = { message ->
+                        _uiState.value = BackupUiState.DeleteSuccess(message)
+                        loadBackups() // Refresh the list after deletion
+                    },
+                    onFailure = { error ->
+                        _uiState.value = BackupUiState.DeleteError("Delete failed: ${error.message}")
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = BackupUiState.DeleteError("Delete failed: ${e.message}")
+            }
+        }
+    }
+
     fun clearError() {
-        if (_uiState.value is BackupUiState.BackupError || _uiState.value is BackupUiState.RestoreError) {
+        if (_uiState.value is BackupUiState.BackupError || 
+            _uiState.value is BackupUiState.RestoreError ||
+            _uiState.value is BackupUiState.DeleteError) {
             _uiState.value = if (backupService.isInitialized()) {
                 BackupUiState.SignedIn(_accountEmail.value ?: "")
             } else {
@@ -139,7 +191,9 @@ class BackupViewModel @Inject constructor(
     }
 
     fun clearSuccess() {
-        if (_uiState.value is BackupUiState.BackupSuccess || _uiState.value is BackupUiState.RestoreSuccess) {
+        if (_uiState.value is BackupUiState.BackupSuccess || 
+            _uiState.value is BackupUiState.RestoreSuccess ||
+            _uiState.value is BackupUiState.DeleteSuccess) {
             _uiState.value = if (backupService.isInitialized()) {
                 BackupUiState.SignedIn(_accountEmail.value ?: "")
             } else {
@@ -149,6 +203,12 @@ class BackupViewModel @Inject constructor(
     }
 
     fun isSignedIn(): Boolean = backupService.isInitialized()
+
+    fun setAutoBackupEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferences.setAutoBackupEnabled(enabled)
+        }
+    }
 }
 
 

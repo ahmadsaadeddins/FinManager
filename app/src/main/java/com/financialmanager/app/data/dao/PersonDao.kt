@@ -28,6 +28,9 @@ interface PersonDao {
     @Update
     suspend fun updatePerson(person: PersonAccount)
 
+    @Query("UPDATE person_accounts SET usageCount = usageCount + 1, lastUsedAt = :timestamp WHERE id = :personId")
+    suspend fun incrementUsage(personId: Long, timestamp: Long = System.currentTimeMillis())
+
     @Delete
     suspend fun deletePerson(person: PersonAccount)
 
@@ -75,5 +78,18 @@ interface PersonDao {
 
     @Query("DELETE FROM person_transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: Long)
+    
+    // Recent operations queries
+    @Query("SELECT * FROM person_accounts ORDER BY createdAt DESC LIMIT :limit")
+    fun getRecentPersons(limit: Int): Flow<List<PersonAccount>>
+    
+    @Query("SELECT * FROM person_transactions ORDER BY createdAt DESC LIMIT :limit")
+    fun getRecentPersonTransactions(limit: Int): Flow<List<PersonTransaction>>
+    
+    @Query("SELECT * FROM person_accounts WHERE id = :id")
+    suspend fun getPersonByIdSync(id: Long): PersonAccount?
+    
+    @Delete
+    suspend fun deletePersonTransaction(transaction: PersonTransaction)
 }
 

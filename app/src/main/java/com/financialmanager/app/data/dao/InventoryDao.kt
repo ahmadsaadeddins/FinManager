@@ -35,5 +35,9 @@ interface InventoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItems(items: List<InventoryItem>): List<Long>
+    
+    // Recent operations queries
+    @Query("SELECT * FROM inventory_items ORDER BY createdAt DESC LIMIT :limit")
+    fun getRecentItems(limit: Int): Flow<List<InventoryItem>>
 }
 

@@ -15,6 +15,8 @@ data class OutTransaction(
     val relatedItemId: Long? = null, // link to inventory item if it's a sale
     val quantity: Int = 1, // quantity sold (for sales)
     val notes: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val isArchived: Boolean = false, // for archiving sales
+    val archivedAt: Long? = null // when it was archived
 )
 

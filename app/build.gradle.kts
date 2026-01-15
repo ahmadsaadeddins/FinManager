@@ -91,6 +91,13 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
     
+    // Hilt Work
+    implementation(libs.hilt.work)
+    kapt(libs.hilt.work.compiler)
+    
+    // WorkManager
+    implementation(libs.work.runtime.ktx)
+    
     // Date/Time
     implementation(libs.kotlinx.datetime)
     
@@ -104,9 +111,13 @@ dependencies {
     // ViewModel
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.process)
     
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+    
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
     
     // ML Kit Barcode Scanning
     implementation(libs.mlkit.barcode.scanning)

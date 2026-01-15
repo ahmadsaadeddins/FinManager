@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.*
+import com.financialmanager.app.utils.NumberFormatter
 import java.text.NumberFormat
 import java.util.*
 
@@ -41,7 +42,9 @@ fun HomeScreen(
     val totalInventoryValue by viewModel.totalInventoryValue.collectAsState()
     val totalExpenses by viewModel.totalExpenses.collectAsState()
     val totalSales by viewModel.totalSales.collectAsState()
+    val totalPeopleBalance by viewModel.totalPeopleBalance.collectAsState()
     val profitLoss by viewModel.profitLoss.collectAsState()
+    val hideNumbers by viewModel.hideNumbers.collectAsState()
 
     val cards = listOf(
         SummaryCard(
@@ -57,6 +60,13 @@ fun HomeScreen(
             Icons.Default.Inventory,
             Inventory,
             Screen.Inventory.route
+        ),
+        SummaryCard(
+            "People Balance",
+            totalPeopleBalance,
+            Icons.Default.People,
+            if ((totalPeopleBalance ?: 0.0) >= 0) MoneyIn else MoneyOut,
+            Screen.People.route
         ),
         SummaryCard(
             "Total Expenses",
@@ -86,6 +96,13 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Financial Manager") },
                 actions = {
+                    // Toggle button for hiding/showing numbers
+                    IconButton(onClick = { viewModel.toggleHideNumbers() }) {
+                        Icon(
+                            if (hideNumbers) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (hideNumbers) "Show Numbers" else "Hide Numbers"
+                        )
+                    }
                     IconButton(onClick = { navController.navigate(Screen.Backup.route) }) {
                         Icon(Icons.Default.CloudUpload, contentDescription = "Backup")
                     }
@@ -108,15 +125,16 @@ fun HomeScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = padding,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
             items(cards) { card ->
                 SummaryCard(
                     card = card,
+                    hideNumbers = hideNumbers,
                     onClick = { card.route?.let { navController.navigate(it) } }
                 )
             }
@@ -128,16 +146,16 @@ fun HomeScreen(
 @Composable
 fun SummaryCard(
     card: SummaryCard,
+    hideNumbers: Boolean,
     onClick: () -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-    val valueText = card.value?.let { formatter.format(it) } ?: "$0.00"
+    val valueText = NumberFormatter.formatCurrency(card.value, hideNumbers)
 
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp),
+            .height(130.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -174,3 +192,41 @@ fun SummaryCard(
     }
 }
 
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+fun HomeScreenPreview() {
+    FinancialManagerTheme {
+        // Preview with sample data
+        SummaryCard(
+            card = SummaryCard(
+                "Total Capital",
+                1234.56,
+                Icons.Default.AccountBalance,
+                MoneyIn,
+                null
+            ),
+            hideNumbers = false,
+            onClick = {}
+        )
+    }
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+fun HomeScreenPreviewHidden() {
+    FinancialManagerTheme {
+        // Preview with hidden numbers
+        SummaryCard(
+            card = SummaryCard(
+                "Total Capital",
+                1234.56,
+                Icons.Default.AccountBalance,
+                MoneyIn,
+                null
+            ),
+            hideNumbers = true,
+            onClick = {}
+        )
+    }
+}

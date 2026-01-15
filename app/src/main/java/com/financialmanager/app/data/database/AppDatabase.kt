@@ -7,6 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.financialmanager.app.data.dao.*
 import com.financialmanager.app.data.entities.*
+import com.financialmanager.app.data.database.MIGRATION_1_2
+import com.financialmanager.app.data.database.MIGRATION_2_3
+import com.financialmanager.app.data.database.MIGRATION_3_4
+import com.financialmanager.app.data.database.MIGRATION_4_5
 
 @Database(
     entities = [
@@ -17,7 +21,7 @@ import com.financialmanager.app.data.entities.*
         PersonTransaction::class,
         Balance::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -38,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 INSTANCE = instance
                 instance

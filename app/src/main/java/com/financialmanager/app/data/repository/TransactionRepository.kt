@@ -46,5 +46,18 @@ class TransactionRepository @Inject constructor(
         transactionDao.deleteTransaction(transaction)
 
     suspend fun deleteTransactionById(id: Long) = transactionDao.deleteTransactionById(id)
+    
+    // Archive-related methods
+    fun getArchivedSales(): Flow<List<OutTransaction>> = transactionDao.getArchivedSales()
+    
+    fun getTotalArchivedSales(): Flow<Double?> = transactionDao.getTotalArchivedSales()
+    
+    suspend fun archiveAllSales(): Int = transactionDao.archiveAllSales()
+    
+    suspend fun unarchiveTransaction(id: Long) = transactionDao.unarchiveTransaction(id)
+    
+    fun getActiveSalesCount(): Flow<Int> = transactionDao.getActiveSalesCount()
+    
+    fun getSaleTransactions(): Flow<List<OutTransaction>> = transactionDao.getTransactionsByType("sale")
 }
 

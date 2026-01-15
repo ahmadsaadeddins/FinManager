@@ -245,6 +245,68 @@ fun BackupScreen(
                     }
                 }
 
+                // Auto Backup Settings
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Auto Backup Settings",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        val autoBackupEnabled by viewModel.autoBackupEnabled.collectAsState(initial = true)
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Auto Backup on Exit",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = "Automatically backup data when closing the app",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = autoBackupEnabled,
+                                onCheckedChange = { viewModel.setAutoBackupEnabled(it) }
+                            )
+                        }
+                        
+                        if (autoBackupEnabled) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "Your data will be automatically backed up to Google Drive when you exit the app",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Status messages
                 when (val currentState = uiState) {
                     is BackupUiState.BackupSuccess -> {
@@ -279,6 +341,22 @@ fun BackupScreen(
                             onDismiss = { viewModel.clearError() }
                         )
                     }
+                    is BackupUiState.DeleteSuccess -> {
+                        AlertCard(
+                            message = currentState.message,
+                            icon = Icons.Default.CheckCircle,
+                            color = MaterialTheme.colorScheme.primary,
+                            onDismiss = { viewModel.clearSuccess() }
+                        )
+                    }
+                    is BackupUiState.DeleteError -> {
+                        AlertCard(
+                            message = currentState.message,
+                            icon = Icons.Default.Error,
+                            color = MaterialTheme.colorScheme.error,
+                            onDismiss = { viewModel.clearError() }
+                        )
+                    }
                     else -> {}
                 }
 
@@ -299,7 +377,11 @@ fun BackupScreen(
                                 onRestore = {
                                     viewModel.restoreBackup(backup.id)
                                 },
-                                isRestoring = uiState is BackupUiState.Restoring
+                                onDelete = {
+                                    viewModel.deleteBackup(backup.id)
+                                },
+                                isRestoring = uiState is BackupUiState.Restoring,
+                                isDeleting = uiState is BackupUiState.DeletingBackup
                             )
                         }
                     }
@@ -385,7 +467,9 @@ fun AlertCard(
 fun BackupItemCard(
     backup: DriveFile,
     onRestore: () -> Unit,
-    isRestoring: Boolean
+    onDelete: () -> Unit,
+    isRestoring: Boolean,
+    isDeleting: Boolean
 ) {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
     val modifiedTime = backup.modifiedTime?.value?.let {
@@ -397,7 +481,7 @@ fun BackupItemCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -420,9 +504,17 @@ fun BackupItemCard(
                         )
                     }
                 }
+            }
+            
+            // Action buttons row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Button(
                     onClick = onRestore,
-                    enabled = !isRestoring
+                    enabled = !isRestoring && !isDeleting,
+                    modifier = Modifier.weight(1f)
                 ) {
                     if (isRestoring) {
                         CircularProgressIndicator(
@@ -435,6 +527,28 @@ fun BackupItemCard(
                         Icon(Icons.Default.Restore, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text("Restore")
+                    }
+                }
+                
+                OutlinedButton(
+                    onClick = onDelete,
+                    enabled = !isRestoring && !isDeleting,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    if (isDeleting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Deleting...")
+                    } else {
+                        Icon(Icons.Default.Delete, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Delete")
                     }
                 }
             }
