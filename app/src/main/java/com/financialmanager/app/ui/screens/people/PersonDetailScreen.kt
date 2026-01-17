@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,6 +30,8 @@ import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
 import com.financialmanager.app.ui.theme.MoneyOut
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -45,6 +50,8 @@ fun PersonDetailScreen(
     val person by viewModel.person.collectAsState(initial = null)
     val transactions by viewModel.getTransactions(personId).collectAsState(initial = emptyList())
     val balance by viewModel.getBalance(personId).collectAsState(initial = null)
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTransaction by remember { mutableStateOf<PersonTransaction?>(null) }
@@ -56,7 +63,7 @@ fun PersonDetailScreen(
                 title = { Text(person?.name ?: stringResource(R.string.person_details)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -99,7 +106,7 @@ fun PersonDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = NumberFormat.getCurrencyInstance(Locale.getDefault()).format(balance ?: 0.0),
+                        text = Formatters.formatCurrency(balance, currency.symbol, isRTL),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         color = if ((balance ?: 0.0) >= 0) MoneyIn else MoneyOut
@@ -128,6 +135,8 @@ fun PersonDetailScreen(
                     items(transactions) { transaction ->
                         PersonTransactionCard(
                             transaction = transaction,
+                            currencySymbol = currency.symbol,
+                            isRTL = isRTL,
                             onEdit = { editingTransaction = it },
                             onDelete = { showDeleteDialog = it }
                         )
@@ -141,6 +150,8 @@ fun PersonDetailScreen(
         PersonTransactionDialog(
             personId = personId,
             transaction = editingTransaction,
+            currencySymbol = currency.symbol,
+            isRTL = isRTL,
             onDismiss = {
                 showAddDialog = false
                 editingTransaction = null
@@ -184,10 +195,11 @@ fun PersonDetailScreen(
 @Composable
 fun PersonTransactionCard(
     transaction: PersonTransaction,
+    currencySymbol: String,
+    isRTL: Boolean,
     onEdit: (PersonTransaction) -> Unit,
     onDelete: (PersonTransaction) -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val color = if (transaction.type == PersonTransactionType.THEY_OWE_ME) MoneyIn else MoneyOut
 
@@ -219,7 +231,7 @@ fun PersonTransactionCard(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formatter.format(transaction.amount),
+                    text = Formatters.formatCurrency(transaction.amount, currencySymbol, isRTL),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = color
@@ -246,6 +258,8 @@ fun PersonTransactionCard(
 fun PersonTransactionDialog(
     personId: Long,
     transaction: PersonTransaction?,
+    currencySymbol: String = "ج.م",
+    isRTL: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (PersonTransaction) -> Unit
 ) {
@@ -268,7 +282,7 @@ fun PersonTransactionDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text(stringResource(R.string.amount)) },
+                    label = { Text("${stringResource(R.string.amount)} ($currencySymbol)") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->

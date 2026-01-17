@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.*
+import com.financialmanager.app.util.LocaleHelper
 import com.financialmanager.app.util.NumberFormatter
 import java.text.NumberFormat
 import java.util.*
@@ -46,7 +49,10 @@ fun HomeScreen(
     val totalSales by viewModel.totalSales.collectAsState()
     val totalPeopleBalance by viewModel.totalPeopleBalance.collectAsState()
     val profitLoss by viewModel.profitLoss.collectAsState()
+    val generalProfit by viewModel.generalProfit.collectAsState()
     val hideNumbers by viewModel.hideNumbers.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     val cards = listOf(
         SummaryCard(
@@ -73,14 +79,14 @@ fun HomeScreen(
         SummaryCard(
             stringResource(R.string.total_expenses),
             totalExpenses,
-            Icons.Default.TrendingDown,
+            Icons.AutoMirrored.Filled.TrendingDown,
             MoneyOut,
             Screen.Transactions.route
         ),
         SummaryCard(
             stringResource(R.string.total_sales),
             totalSales,
-            Icons.Default.TrendingUp,
+            Icons.AutoMirrored.Filled.TrendingUp,
             MoneyIn,
             Screen.Transactions.route
         ),
@@ -89,6 +95,13 @@ fun HomeScreen(
             profitLoss,
             Icons.Default.Assessment,
             if (profitLoss >= 0) MoneyIn else MoneyOut,
+            Screen.Reports.route
+        ),
+        SummaryCard(
+            stringResource(R.string.general_balance),
+            generalProfit,
+            Icons.Default.Balance,
+            if (generalProfit >= 0) MoneyIn else MoneyOut,
             Screen.Reports.route
         )
     )
@@ -140,6 +153,8 @@ fun HomeScreen(
                 SummaryCard(
                     card = card,
                     hideNumbers = hideNumbers,
+                    currencySymbol = currency.symbol,
+                    isRTL = isRTL,
                     onClick = { card.route?.let { navController.navigate(it) } }
                 )
             }
@@ -152,9 +167,11 @@ fun HomeScreen(
 fun SummaryCard(
     card: SummaryCard,
     hideNumbers: Boolean,
+    currencySymbol: String,
+    isRTL: Boolean,
     onClick: () -> Unit
 ) {
-    val valueText = NumberFormatter.formatCurrency(card.value, hideNumbers)
+    val valueText = NumberFormatter.formatCurrency(card.value, hideNumbers, currencySymbol, isRTL)
 
     Card(
         onClick = onClick,
@@ -212,6 +229,8 @@ fun HomeScreenPreview() {
                 null
             ),
             hideNumbers = false,
+            currencySymbol = "ج.م",
+            isRTL = false,
             onClick = {}
         )
     }
@@ -231,6 +250,8 @@ fun HomeScreenPreviewHidden() {
                 null
             ),
             hideNumbers = true,
+            currencySymbol = "ج.م",
+            isRTL = false,
             onClick = {}
         )
     }

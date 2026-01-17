@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -18,6 +23,8 @@ import com.financialmanager.app.R
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.*
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.util.*
 
@@ -41,19 +48,24 @@ fun ReportsScreen(
     val totalSales by viewModel.totalSales.collectAsState()
     val totalInvestments by viewModel.totalInvestments.collectAsState()
     val totalWithdrawals by viewModel.totalWithdrawals.collectAsState()
+    val totalCOGS by viewModel.totalCOGS.collectAsState()
+    val generalProfit by viewModel.generalProfit.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
-    val profitLoss = (totalSales ?: 0.0) - (totalExpenses ?: 0.0)
+    val profitLoss = (totalSales ?: 0.0) - (totalCOGS ?: 0.0) - (totalExpenses ?: 0.0)
     val netCapital = (totalInvestments ?: 0.0) - (totalWithdrawals ?: 0.0)
 
     val reportItems = listOf(
         ReportItem(stringResource(R.string.total_capital), totalCapital, MoneyIn, Icons.Default.AccountBalance),
-        ReportItem(stringResource(R.string.net_capital), netCapital, if (netCapital >= 0) MoneyIn else MoneyOut, Icons.Default.TrendingUp),
+        ReportItem(stringResource(R.string.net_capital), netCapital, if (netCapital >= 0) MoneyIn else MoneyOut, Icons.AutoMirrored.Filled.TrendingUp),
         ReportItem(stringResource(R.string.total_investments), totalInvestments, MoneyIn, Icons.Default.Add),
         ReportItem(stringResource(R.string.total_withdrawals), totalWithdrawals, MoneyOut, Icons.Default.Remove),
         ReportItem(stringResource(R.string.inventory_value), totalInventoryValue, Inventory, Icons.Default.Inventory),
-        ReportItem(stringResource(R.string.total_sales), totalSales, MoneyIn, Icons.Default.TrendingUp),
-        ReportItem(stringResource(R.string.total_expenses), totalExpenses, MoneyOut, Icons.Default.TrendingDown),
-        ReportItem(stringResource(R.string.profit_loss), profitLoss, if (profitLoss >= 0) MoneyIn else MoneyOut, Icons.Default.Assessment)
+        ReportItem(stringResource(R.string.total_sales), totalSales, MoneyIn, Icons.AutoMirrored.Filled.TrendingUp),
+        ReportItem(stringResource(R.string.total_expenses), totalExpenses, MoneyOut, Icons.AutoMirrored.Filled.TrendingDown),
+        ReportItem(stringResource(R.string.profit_loss), profitLoss, if (profitLoss >= 0) MoneyIn else MoneyOut, Icons.Default.Assessment),
+        ReportItem(stringResource(R.string.general_balance), generalProfit, if (generalProfit >= 0) MoneyIn else MoneyOut, Icons.Default.Balance)
     )
 
     Scaffold(
@@ -62,7 +74,7 @@ fun ReportsScreen(
                 title = { Text(stringResource(R.string.reports)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -130,7 +142,7 @@ fun ReportsScreen(
             }
             
             items(reportItems) { item ->
-                ReportCard(item = item)
+                ReportCard(item = item, currencySymbol = currency.symbol, isRTL = isRTL)
             }
         }
     }
@@ -150,9 +162,8 @@ fun ReportsScreen(
 }
 
 @Composable
-fun ReportCard(item: ReportItem) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-    val valueText = item.value?.let { formatter.format(it) } ?: "$0.00"
+fun ReportCard(item: ReportItem, currencySymbol: String, isRTL: Boolean) {
+    val valueText = Formatters.formatCurrency(item.value, currencySymbol, isRTL)
 
     Card(
         modifier = Modifier.fillMaxWidth()

@@ -2,6 +2,7 @@ package com.financialmanager.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.data.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,26 +34,41 @@ class HomeViewModel @Inject constructor(
     val totalPeopleBalance = personRepository.getTotalPeopleBalance()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    // Profit/loss formula: Inventory Value - People Balance - Expenses - Capital
-    // Note: People Balance and Expenses are inverted in the calculation since they represent
-    // amounts owed to people and money spent (negative cash flow), respectively.
-    // This combine operation is safe from memory leaks as it's immediately converted to StateFlow.
+    // Profit formula: Total Sales - Total COGS - Total Expenses
     val profitLoss = combine(
-        totalInventoryValue, 
-        totalPeopleBalance, 
+        totalSales,
+        transactionRepository.getTotalCOGS(),
+        totalExpenses
+    ) { sales, cogs, expenses ->
+        val salesAmount = sales ?: 0.0
+        val cogsAmount = cogs ?: 0.0
+        val expensesAmount = expenses ?: 0.0
+        salesAmount - cogsAmount - expensesAmount
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // General Profit/Business Value formula: (Inventory + People Balance + Sales - Expenses) - Capital
+    val generalProfit = combine(
+        totalInventoryValue,
+        totalPeopleBalance,
+        totalSales,
         totalExpenses,
         totalCapital
-    ) { inventoryValue, peopleBalance, expenses, capital ->
-        val inventory = inventoryValue ?: 0.0
-        val people = -(peopleBalance ?: 0.0) // Invert people balance for calculation only
-        val expensesAmount = -(expenses ?: 0.0) // Invert expenses for calculation only
-        val capitalAmount = capital ?: 0.0
-        (inventory + people + expensesAmount) - capitalAmount
+    ) { inventory, people, sales, expenses, capital ->
+        val inv = inventory ?: 0.0
+        val ppl = people ?: 0.0
+        val sls = sales ?: 0.0
+        val exp = expenses ?: 0.0
+        val cap = capital ?: 0.0
+        (inv + ppl + sls - exp) - cap
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     // User preferences for hiding numbers
     val hideNumbers = userPreferences.hideNumbers
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    // User preferences for currency
+    val currency = userPreferences.currency
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Currency.EGP)
 
     fun toggleHideNumbers() {
         viewModelScope.launch {

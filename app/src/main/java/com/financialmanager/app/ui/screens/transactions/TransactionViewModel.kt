@@ -3,8 +3,10 @@ package com.financialmanager.app.ui.screens.transactions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financialmanager.app.data.dao.TransactionInventoryDao
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.data.entities.OutTransaction
 import com.financialmanager.app.data.entities.TransactionType
+import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.data.repository.InventoryRepository
 import com.financialmanager.app.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +20,8 @@ import javax.inject.Inject
 class TransactionViewModel @Inject constructor(
     private val repository: TransactionRepository,
     private val inventoryRepository: InventoryRepository,
-    private val transactionInventoryDao: TransactionInventoryDao
+    private val transactionInventoryDao: TransactionInventoryDao,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -29,6 +32,8 @@ class TransactionViewModel @Inject constructor(
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    val currency = userPreferences.currency.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Currency.EGP)
 
     val transactions = combine(
         _searchQuery,

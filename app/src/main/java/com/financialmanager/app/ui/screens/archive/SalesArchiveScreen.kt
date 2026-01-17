@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +21,8 @@ import com.financialmanager.app.R
 import com.financialmanager.app.data.entities.OutTransaction
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,11 +39,11 @@ fun SalesArchiveScreen(
     val activeSalesCount by viewModel.activeSalesCount.collectAsState(initial = 0)
     val archivedSales by viewModel.archivedSales.collectAsState(initial = emptyList())
     val totalArchivedSales by viewModel.totalArchivedSales.collectAsState(initial = 0.0)
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     var showArchiveDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
-
-    val currencyFormat = NumberFormat.getCurrencyInstance()
 
     Scaffold(
         topBar = {
@@ -47,7 +51,7 @@ fun SalesArchiveScreen(
                 title = { Text(stringResource(R.string.sales_archive)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -132,7 +136,7 @@ fun SalesArchiveScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Default.TrendingUp,
+                            Icons.AutoMirrored.Filled.TrendingUp,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
@@ -144,7 +148,7 @@ fun SalesArchiveScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = currencyFormat.format(totalActiveSales ?: 0.0),
+                            text = Formatters.formatCurrency(totalActiveSales ?: 0.0, currency.symbol, isRTL),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -183,7 +187,7 @@ fun SalesArchiveScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = currencyFormat.format(totalArchivedSales ?: 0.0),
+                            text = Formatters.formatCurrency(totalArchivedSales ?: 0.0, currency.symbol, isRTL),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.secondary
@@ -217,7 +221,7 @@ fun SalesArchiveScreen(
                     // Active sales
                     if (activeSales.isEmpty()) {
                         EmptyStateCard(
-                            icon = Icons.Default.TrendingUp,
+                            icon = Icons.AutoMirrored.Filled.TrendingUp,
                             title = stringResource(R.string.no_active_sales_title),
                             description = stringResource(R.string.no_active_sales_desc)
                         )
@@ -228,6 +232,8 @@ fun SalesArchiveScreen(
                             items(activeSales) { sale ->
                                 SaleTransactionCard(
                                     transaction = sale,
+                                    currencySymbol = currency.symbol,
+                                    isRTL = isRTL,
                                     isArchived = false,
                                     onAction = { /* No action for active sales */ }
                                 )
@@ -250,6 +256,8 @@ fun SalesArchiveScreen(
                             items(archivedSales) { sale ->
                                 SaleTransactionCard(
                                     transaction = sale,
+                                    currencySymbol = currency.symbol,
+                                    isRTL = isRTL,
                                     isArchived = true,
                                     onAction = { viewModel.unarchiveTransaction(sale) }
                                 )
@@ -270,7 +278,7 @@ fun SalesArchiveScreen(
                 Column {
                     Text(stringResource(R.string.archive_all_info))
                     Spacer(Modifier.height(8.dp))
-                    Text("• ${stringResource(R.string.total_format, currencyFormat.format(totalActiveSales ?: 0.0))}")
+                    Text("• ${stringResource(R.string.total_format, Formatters.formatCurrency(totalActiveSales ?: 0.0, currency.symbol, isRTL))}")
                     Text("• ${stringResource(R.string.transactions_count, activeSalesCount)}")
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -310,11 +318,12 @@ fun SalesArchiveScreen(
 @Composable
 fun SaleTransactionCard(
     transaction: OutTransaction,
+    currencySymbol: String,
+    isRTL: Boolean,
     isArchived: Boolean,
     onAction: () -> Unit
 ) {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    val currencyFormat = NumberFormat.getCurrencyInstance()
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -361,7 +370,7 @@ fun SaleTransactionCard(
                 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = currencyFormat.format(transaction.amount),
+                        text = Formatters.formatCurrency(transaction.amount, currencySymbol, isRTL),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

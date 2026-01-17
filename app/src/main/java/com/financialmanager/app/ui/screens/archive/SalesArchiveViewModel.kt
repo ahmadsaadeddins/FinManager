@@ -2,12 +2,16 @@ package com.financialmanager.app.ui.screens.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.data.entities.OutTransaction
+import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.financialmanager.app.R
 import javax.inject.Inject
@@ -24,11 +28,14 @@ sealed class SalesArchiveUiState {
 
 @HiltViewModel
 class SalesArchiveViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SalesArchiveUiState>(SalesArchiveUiState.Idle)
     val uiState: StateFlow<SalesArchiveUiState> = _uiState.asStateFlow()
+
+    val currency = userPreferences.currency.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Currency.EGP)
 
     // Current (active) sales data
     val activeSales = transactionRepository.getSaleTransactions()

@@ -186,6 +186,7 @@
     <string name="total_sales">Total Sales</string>
     <string name="total_expenses">Total Expenses</string>
     <string name="profit_loss">Profit/Loss</string>
+    <string name="general_balance">General Balance</string>
     <string name="frequently_used">Frequently Used</string>
     <string name="amount_format">Amount: %s</string>
     <string name="shared_successfully">Shared successfully</string>
@@ -218,6 +219,14 @@
     <string name="restart_required">Restart Required</string>
     <string name="restart_now">Restart Now</string>
     <string name="later">Later</string>
+    
+    <!-- Currency Settings -->
+    <string name="currency">Currency</string>
+    <string name="select_currency">Select Currency</string>
+    <string name="currency_usd">US Dollar ($)</string>
+    <string name="currency_egp">Egyptian Pound (ج.م)</string>
+    <string name="currency_eur">Euro (€)</string>
+    <string name="currency_sar">Saudi Riyal (ر.س)</string>
     
     <!-- Misc -->
     <string name="camera_permission_required">Camera permission is required to scan barcodes</string>

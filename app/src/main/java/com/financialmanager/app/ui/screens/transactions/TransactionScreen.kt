@@ -28,6 +28,8 @@ import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
 import com.financialmanager.app.ui.theme.MoneyOut
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,6 +43,8 @@ fun TransactionScreen(
     val transactions by viewModel.transactions.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTransaction by remember { mutableStateOf<OutTransaction?>(null) }
@@ -130,6 +134,8 @@ fun TransactionScreen(
                     items(transactions) { transaction ->
                         TransactionCard(
                             transaction = transaction,
+                            currencySymbol = currency.symbol,
+                            isRTL = isRTL,
                             onEdit = { editingTransaction = it },
                             onDelete = { showDeleteDialog = it }
                         )
@@ -143,6 +149,8 @@ fun TransactionScreen(
         TransactionDialog(
             transaction = editingTransaction,
             viewModel = viewModel,
+            currencySymbol = currency.symbol,
+            isRTL = isRTL,
             onDismiss = {
                 showAddDialog = false
                 editingTransaction = null
@@ -186,10 +194,11 @@ fun TransactionScreen(
 @Composable
 fun TransactionCard(
     transaction: OutTransaction,
+    currencySymbol: String,
+    isRTL: Boolean,
     onEdit: (OutTransaction) -> Unit,
     onDelete: (OutTransaction) -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val color = if (transaction.type == TransactionType.SALE) MoneyIn else MoneyOut
 
@@ -221,7 +230,7 @@ fun TransactionCard(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formatter.format(transaction.amount),
+                    text = Formatters.formatCurrency(transaction.amount, currencySymbol, isRTL),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = color
@@ -248,6 +257,8 @@ fun TransactionCard(
 fun TransactionDialog(
     transaction: OutTransaction?,
     viewModel: TransactionViewModel,
+    currencySymbol: String,
+    isRTL: Boolean,
     onDismiss: () -> Unit,
     onSave: (OutTransaction) -> Unit
 ) {
@@ -417,7 +428,8 @@ fun TransactionDialog(
                         description = description.text.ifBlank { null },
                         type = type,
                         relatedItemId = if (type == TransactionType.SALE) selectedItemId else null,
-                        quantity = if (type == TransactionType.SALE) quantity.text.toIntOrNull() ?: 1 else 1
+                        quantity = if (type == TransactionType.SALE) quantity.text.toIntOrNull() ?: 1 else 1,
+                        costPrice = if (type == TransactionType.SALE) selectedItem?.purchasePrice ?: 0.0 else 0.0
                     )
                     onSave(newTransaction)
                 }
@@ -515,8 +527,7 @@ fun TransactionDialog(
                                         }
                                         Column(horizontalAlignment = Alignment.End) {
                                             Text(
-                                                text = NumberFormat.getCurrencyInstance(Locale.getDefault())
-                                                    .format(item.wholesalePrice),
+                                                text = Formatters.formatCurrency(item.wholesalePrice, currencySymbol, isRTL),
                                                 style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.Bold
                                             )

@@ -7,6 +7,7 @@ import com.financialmanager.app.data.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 data class SearchResult(
     val type: String,
@@ -15,6 +16,7 @@ data class SearchResult(
     val data: Any
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val inventoryRepository: InventoryRepository,

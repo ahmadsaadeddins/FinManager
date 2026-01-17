@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,8 @@ import com.financialmanager.app.data.entities.RecentOperation
 import com.financialmanager.app.data.entities.TransactionType
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,6 +41,8 @@ fun RecentOperationsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val operations by viewModel.operations.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     Scaffold(
         topBar = {
@@ -176,6 +182,8 @@ fun RecentOperationsScreen(
                             items(operations) { operation ->
                                 OperationCard(
                                     operation = operation,
+                                    currencySymbol = currency.symbol,
+                                    isRTL = isRTL,
                                     onDelete = { viewModel.deleteOperation(operation) }
                                 )
                             }
@@ -193,10 +201,11 @@ fun RecentOperationsScreen(
 @Composable
 fun OperationCard(
     operation: RecentOperation,
+    currencySymbol: String,
+    isRTL: Boolean,
     onDelete: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance() }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -254,9 +263,9 @@ fun OperationCard(
                         is EntityData.OutTx -> operation.entityData.transaction.type == TransactionType.EXPENSE
                         else -> false
                     }
-                    
+
                     Text(
-                        text = currencyFormat.format(amount),
+                        text = Formatters.formatCurrency(amount, currencySymbol, isRTL),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (isExpense) {

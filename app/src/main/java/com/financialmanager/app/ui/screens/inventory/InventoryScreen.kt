@@ -24,6 +24,8 @@ import com.financialmanager.app.data.entities.InventoryItem
 import com.financialmanager.app.ui.components.BarcodeScannerDialog
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.util.*
 
@@ -37,6 +39,8 @@ fun InventoryScreen(
     val categories by viewModel.categories.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     val errorState by viewModel.errorState.collectAsState()
 
@@ -127,6 +131,8 @@ fun InventoryScreen(
                     items(items) { item ->
                         InventoryItemCard(
                             item = item,
+                            currencySymbol = currency.symbol,
+                            isRTL = isRTL,
                             onEdit = { editingItem = it },
                             onDelete = { showDeleteDialog = it }
                         )
@@ -154,6 +160,8 @@ fun InventoryScreen(
     if (showAddDialog || editingItem != null) {
         InventoryItemDialog(
             item = editingItem,
+            currencySymbol = currency.symbol,
+            isRTL = isRTL,
             onDismiss = {
                 showAddDialog = false
                 editingItem = null
@@ -198,11 +206,11 @@ fun InventoryScreen(
 @Composable
 fun InventoryItemCard(
     item: InventoryItem,
+    currencySymbol: String,
+    isRTL: Boolean,
     onEdit: (InventoryItem) -> Unit,
     onDelete: (InventoryItem) -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -245,7 +253,7 @@ fun InventoryItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(stringResource(R.string.qty_format, item.quantity))
-                Text(stringResource(R.string.wholesale_format, formatter.format(item.wholesalePrice)))
+                Text(stringResource(R.string.wholesale_format, Formatters.formatCurrency(item.wholesalePrice, currencySymbol, isRTL)))
             }
             if (item.barcode != null) {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -271,6 +279,8 @@ fun InventoryItemCard(
 @Composable
 fun InventoryItemDialog(
     item: InventoryItem?,
+    currencySymbol: String = "ج.م",
+    isRTL: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (InventoryItem) -> Unit
 ) {
@@ -403,7 +413,7 @@ fun InventoryItemDialog(
                     OutlinedTextField(
                         value = purchasePrice,
                         onValueChange = { purchasePrice = it },
-                        label = { Text(stringResource(R.string.purchase_price)) },
+                        label = { Text("${stringResource(R.string.purchase_price)} ($currencySymbol)") },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { focusState ->
@@ -415,7 +425,7 @@ fun InventoryItemDialog(
                     OutlinedTextField(
                         value = sellingPrice,
                         onValueChange = { sellingPrice = it },
-                        label = { Text(stringResource(R.string.selling_price)) },
+                        label = { Text("${stringResource(R.string.selling_price)} ($currencySymbol)") },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { focusState ->
@@ -428,7 +438,7 @@ fun InventoryItemDialog(
                 OutlinedTextField(
                     value = wholesalePrice,
                     onValueChange = { wholesalePrice = it },
-                    label = { Text(stringResource(R.string.wholesale_price)) },
+                    label = { Text("${stringResource(R.string.wholesale_price)} ($currencySymbol)") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->

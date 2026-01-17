@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.financialmanager.app.MainActivity
 import com.financialmanager.app.R
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.util.LocaleHelper
@@ -30,7 +32,9 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+    val selectedCurrency by viewModel.selectedCurrency.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showCurrencyDialog by remember { mutableStateOf(false) }
     var showRestartDialog by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
@@ -41,7 +45,7 @@ fun SettingsScreen(
                 title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -104,6 +108,51 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            // Currency Setting
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCurrencyDialog = true }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.AttachMoney,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.currency),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = getCurrencyDisplayName(selectedCurrency),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -148,6 +197,33 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Currency Selection Dialog
+    if (showCurrencyDialog) {
+        AlertDialog(
+            onDismissRequest = { showCurrencyDialog = false },
+            title = { Text(stringResource(R.string.select_currency)) },
+            text = {
+                Column {
+                    Currency.values().forEach { currency ->
+                        CurrencyOption(
+                            currency = currency,
+                            isSelected = selectedCurrency == currency,
+                            onSelect = {
+                                viewModel.setCurrency(currency)
+                                showCurrencyDialog = false
+                            }
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCurrencyDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -221,5 +297,43 @@ private fun getLanguageDisplayName(languageCode: String): String {
         LocaleHelper.LANGUAGE_ENGLISH -> stringResource(R.string.language_english)
         LocaleHelper.LANGUAGE_ARABIC -> stringResource(R.string.language_arabic)
         else -> stringResource(R.string.language_system)
+    }
+}
+
+@Composable
+private fun CurrencyOption(
+    currency: Currency,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onSelect() }
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = getCurrencyDisplayName(currency),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        if (isSelected) {
+            Icon(
+                Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun getCurrencyDisplayName(currency: Currency): String {
+    return when (currency) {
+        Currency.USD -> stringResource(R.string.currency_usd)
+        Currency.EGP -> stringResource(R.string.currency_egp)
+        Currency.EUR -> stringResource(R.string.currency_eur)
+        Currency.SAR -> stringResource(R.string.currency_sar)
     }
 }

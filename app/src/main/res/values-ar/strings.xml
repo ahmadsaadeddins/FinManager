@@ -186,6 +186,7 @@
     <string name="total_sales">إجمالي المبيعات</string>
     <string name="total_expenses">إجمالي المصروفات</string>
     <string name="profit_loss">الربح/الخسارة</string>
+    <string name="general_balance">الميزان العام</string>
     <string name="frequently_used">متكرر الاستخدام</string>
     <string name="amount_format">المبلغ: %s</string>
     <string name="shared_successfully">تمت المشاركة بنجاح</string>
@@ -218,6 +219,14 @@
     <string name="restart_required">مطلوب إعادة التشغيل</string>
     <string name="restart_now">إعادة التشغيل الآن</string>
     <string name="later">لاحقاً</string>
+    
+    <!-- Currency Settings -->
+    <string name="currency">العملة</string>
+    <string name="select_currency">اختر العملة</string>
+    <string name="currency_usd">دولار أمريكي ($)</string>
+    <string name="currency_egp">جنيه مصري (ج.م)</string>
+    <string name="currency_eur">يورو (€)</string>
+    <string name="currency_sar">ريال سعودي (ر.س)</string>
     
     <!-- Misc -->
     <string name="camera_permission_required">إذن الكاميرا مطلوب لمسح الباركود ضوئياً</string>

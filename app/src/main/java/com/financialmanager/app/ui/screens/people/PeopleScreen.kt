@@ -7,6 +7,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +27,8 @@ import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
 import com.financialmanager.app.ui.theme.MoneyOut
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.util.*
 
@@ -38,6 +42,8 @@ fun PeopleScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val peopleCount by viewModel.peopleCount.collectAsState()
     val positiveBalanceCount by viewModel.positiveBalanceCount.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingPerson by remember { mutableStateOf<PersonAccount?>(null) }
@@ -139,7 +145,9 @@ fun PeopleScreen(
                     items(peopleWithBalances) { personWithBalance ->
                         PersonCard(
                             personWithBalance = personWithBalance,
-                            onNavigate = { 
+                            currencySymbol = currency.symbol,
+                            isRTL = isRTL,
+                            onNavigate = {
                                 viewModel.trackPersonUsage(personWithBalance.person.id)
                                 navController.navigate(Screen.PersonDetail.createRoute(personWithBalance.person.id))
                             },
@@ -197,6 +205,8 @@ fun PeopleScreen(
     if (showTransferDialog) {
         TransferDialog(
             people = peopleWithBalances,
+            currencySymbol = currency.symbol,
+            isRTL = isRTL,
             onDismiss = { showTransferDialog = false },
             onTransfer = { fromPersonId, toPersonId, amount, description ->
                 viewModel.transferBetweenPeople(fromPersonId, toPersonId, amount, description)
@@ -210,13 +220,14 @@ fun PeopleScreen(
 @Composable
 fun PersonCard(
     personWithBalance: PersonWithBalance,
+    currencySymbol: String,
+    isRTL: Boolean,
     onNavigate: () -> Unit,
     onEdit: (PersonAccount) -> Unit,
     onDelete: (PersonAccount) -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-    val person = personWithBalance.person
-    val balance = personWithBalance.balance
+    val person: PersonAccount = personWithBalance.person
+    val balance: Double = personWithBalance.balance
     
     Card(
         onClick = onNavigate,
@@ -256,7 +267,7 @@ fun PersonCard(
                         }
                     }
                     Text(
-                        text = formatter.format(balance),
+                        text = Formatters.formatCurrency(balance, currencySymbol, isRTL),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (balance >= 0) MoneyIn else MoneyOut
@@ -425,6 +436,8 @@ fun PeopleCountCardPreview() {
 @Composable
 fun TransferDialog(
     people: List<PersonWithBalance>,
+    currencySymbol: String,
+    isRTL: Boolean,
     onDismiss: () -> Unit,
     onTransfer: (fromPersonId: Long, toPersonId: Long, amount: Double, description: String) -> Unit
 ) {
@@ -514,7 +527,7 @@ fun TransferDialog(
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                             Text(
-                                                NumberFormat.getCurrencyInstance().format(personWithBalance.balance),
+                                                Formatters.formatCurrency(personWithBalance.balance, currencySymbol, isRTL),
                                                 color = if (personWithBalance.balance >= 0) MoneyIn else MoneyOut
                                             )
                                         }
@@ -579,7 +592,7 @@ fun TransferDialog(
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                             Text(
-                                                NumberFormat.getCurrencyInstance().format(personWithBalance.balance),
+                                                Formatters.formatCurrency(personWithBalance.balance, currencySymbol, isRTL),
                                                 color = if (personWithBalance.balance >= 0) MoneyIn else MoneyOut
                                             )
                                         }
@@ -599,7 +612,7 @@ fun TransferDialog(
                         showFromSuggestions = false
                         showToSuggestions = false
                     },
-                    label = { Text(stringResource(R.string.amount)) },
+                    label = { Text("${stringResource(R.string.amount)} ($currencySymbol)") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true
@@ -634,7 +647,7 @@ fun TransferDialog(
                                 fontWeight = FontWeight.Bold
                             )
                             Text("${fromPerson.person.name} → ${toPerson.person.name}")
-                            Text(stringResource(R.string.amount_format, amount.text))
+                            Text(stringResource(R.string.amount_format, Formatters.formatCurrency(amount.text.toDoubleOrNull() ?: 0.0, currencySymbol, isRTL)))
                         }
                     }
                 }

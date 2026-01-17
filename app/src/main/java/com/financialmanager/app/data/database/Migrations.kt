@@ -49,3 +49,9 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_person_transactions_date` ON `person_transactions` (`date`)")
     }
 }
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE out_transactions ADD COLUMN costPrice REAL NOT NULL DEFAULT 0.0")
+    }
+}

@@ -54,7 +54,7 @@ object LocaleHelper {
     fun setLocale(context: Context, languageCode: String): Context {
         val locale = when (languageCode) {
             LANGUAGE_ENGLISH -> Locale.ENGLISH
-            LANGUAGE_ARABIC -> Locale("ar")
+            LANGUAGE_ARABIC -> Locale.forLanguageTag("ar")
             else -> Locale.getDefault() // System default
         }
 
@@ -80,7 +80,7 @@ object LocaleHelper {
     fun updateActivityLocale(activity: Activity, languageCode: String) {
         val locale = when (languageCode) {
             LANGUAGE_ENGLISH -> Locale.ENGLISH
-            LANGUAGE_ARABIC -> Locale("ar")
+            LANGUAGE_ARABIC -> Locale.forLanguageTag("ar")
             else -> Locale.getDefault()
         }
 
@@ -111,6 +111,13 @@ object LocaleHelper {
             LANGUAGE_SYSTEM -> "System Default"
             else -> languageCode
         }
+    }
+
+    /**
+     * Check if current locale is RTL
+     */
+    fun isRTL(): Boolean {
+        return Locale.getDefault().language == LANGUAGE_ARABIC
     }
 }
 

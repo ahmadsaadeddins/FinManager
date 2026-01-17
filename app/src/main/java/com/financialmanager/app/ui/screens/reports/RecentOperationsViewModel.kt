@@ -2,12 +2,16 @@ package com.financialmanager.app.ui.screens.reports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.data.entities.RecentOperation
+import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.data.repository.RecentOperationsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.financialmanager.app.R
 import javax.inject.Inject
@@ -22,7 +26,8 @@ sealed class RecentOperationsUiState {
 
 @HiltViewModel
 class RecentOperationsViewModel @Inject constructor(
-    private val repository: RecentOperationsRepository
+    private val repository: RecentOperationsRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RecentOperationsUiState>(RecentOperationsUiState.Loading)
@@ -30,6 +35,10 @@ class RecentOperationsViewModel @Inject constructor(
 
     private val _operations = MutableStateFlow<List<RecentOperation>>(emptyList())
     val operations: StateFlow<List<RecentOperation>> = _operations.asStateFlow()
+
+    // User preferences for currency
+    val currency = userPreferences.currency
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Currency.EGP)
 
     init {
         loadRecentOperations()
@@ -66,7 +75,7 @@ class RecentOperationsViewModel @Inject constructor(
     }
 
     fun clearMessage() {
-        if (_uiState.value is RecentOperationsUiState.DeleteSuccess || 
+        if (_uiState.value is RecentOperationsUiState.DeleteSuccess ||
             _uiState.value is RecentOperationsUiState.DeleteError ||
             _uiState.value is RecentOperationsUiState.Error) {
             _uiState.value = RecentOperationsUiState.Success(_operations.value)

@@ -31,6 +31,9 @@ interface TransactionDao {
     @Query("SELECT SUM(amount) FROM out_transactions WHERE type = 'sale' AND isArchived = 0")
     fun getTotalSales(): Flow<Double?>
 
+    @Query("SELECT SUM(costPrice * quantity) FROM out_transactions WHERE type = 'sale' AND isArchived = 0")
+    fun getTotalCOGS(): Flow<Double?>
+
     @Query("SELECT SUM(amount) FROM out_transactions WHERE type = 'expense' AND date BETWEEN :startDate AND :endDate AND isArchived = 0")
     fun getExpensesByDateRange(startDate: Long, endDate: Long): Flow<Double?>
 

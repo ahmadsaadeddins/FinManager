@@ -26,6 +26,8 @@ import com.financialmanager.app.ui.components.BottomNavigationBar
 import com.financialmanager.app.ui.navigation.Screen
 import com.financialmanager.app.ui.theme.MoneyIn
 import com.financialmanager.app.ui.theme.MoneyOut
+import com.financialmanager.app.util.Formatters
+import com.financialmanager.app.util.LocaleHelper
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,6 +40,8 @@ fun CapitalScreen(
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val currency by viewModel.currency.collectAsState()
+    val isRTL = LocaleHelper.isRTL()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTransaction by remember { mutableStateOf<CapitalTransaction?>(null) }
@@ -100,6 +104,8 @@ fun CapitalScreen(
                     items(transactions) { transaction ->
                         CapitalTransactionCard(
                             transaction = transaction,
+                            currencySymbol = currency.symbol,
+                            isRTL = isRTL,
                             onEdit = { editingTransaction = it },
                             onDelete = { showDeleteDialog = it }
                         )
@@ -112,6 +118,8 @@ fun CapitalScreen(
     if (showAddDialog || editingTransaction != null) {
         CapitalTransactionDialog(
             transaction = editingTransaction,
+            currencySymbol = currency.symbol,
+            isRTL = isRTL,
             onDismiss = {
                 showAddDialog = false
                 editingTransaction = null
@@ -155,10 +163,11 @@ fun CapitalScreen(
 @Composable
 fun CapitalTransactionCard(
     transaction: CapitalTransaction,
+    currencySymbol: String,
+    isRTL: Boolean,
     onEdit: (CapitalTransaction) -> Unit,
     onDelete: (CapitalTransaction) -> Unit
 ) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val color = if (transaction.type == CapitalTransactionType.INVESTMENT) MoneyIn else MoneyOut
 
@@ -190,7 +199,7 @@ fun CapitalTransactionCard(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formatter.format(transaction.amount),
+                    text = Formatters.formatCurrency(transaction.amount, currencySymbol, isRTL),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = color
@@ -216,6 +225,8 @@ fun CapitalTransactionCard(
 @Composable
 fun CapitalTransactionDialog(
     transaction: CapitalTransaction?,
+    currencySymbol: String = "ج.م",
+    isRTL: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (CapitalTransaction) -> Unit
 ) {
@@ -243,7 +254,7 @@ fun CapitalTransactionDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text(stringResource(R.string.amount)) },
+                    label = { Text("${stringResource(R.string.amount)} ($currencySymbol)") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->

@@ -12,6 +12,7 @@ import com.financialmanager.app.data.database.MIGRATION_2_3
 import com.financialmanager.app.data.database.MIGRATION_3_4
 import com.financialmanager.app.data.database.MIGRATION_4_5
 import com.financialmanager.app.data.database.MIGRATION_5_6
+import com.financialmanager.app.data.database.MIGRATION_6_7
 
 @Database(
     entities = [
@@ -22,7 +23,7 @@ import com.financialmanager.app.data.database.MIGRATION_5_6
         PersonTransaction::class,
         Balance::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -44,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                 .build()
                 INSTANCE = instance
                 instance

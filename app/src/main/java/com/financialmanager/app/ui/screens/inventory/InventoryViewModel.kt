@@ -2,17 +2,22 @@ package com.financialmanager.app.ui.screens.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.financialmanager.app.data.entities.Currency
 import com.financialmanager.app.data.entities.InventoryItem
+import com.financialmanager.app.data.preferences.UserPreferences
 import com.financialmanager.app.data.repository.InventoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.financialmanager.app.R
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InventoryViewModel @Inject constructor(
-    private val repository: InventoryRepository
+    private val repository: InventoryRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -23,6 +28,8 @@ class InventoryViewModel @Inject constructor(
 
     private val _errorState = MutableStateFlow<Pair<Int, String?>?>(null)
     val errorState: StateFlow<Pair<Int, String?>?> = _errorState.asStateFlow()
+
+    val currency = userPreferences.currency.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Currency.EGP)
 
     val items = combine(
         _searchQuery,

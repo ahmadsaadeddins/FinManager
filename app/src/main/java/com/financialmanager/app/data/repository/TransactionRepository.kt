@@ -31,6 +31,8 @@ class TransactionRepository @Inject constructor(
 
     fun getTotalSales(): Flow<Double?> = transactionDao.getTotalSales()
 
+    fun getTotalCOGS(): Flow<Double?> = transactionDao.getTotalCOGS()
+
     fun getExpensesByDateRange(startDate: Long, endDate: Long): Flow<Double?> =
         transactionDao.getExpensesByDateRange(startDate, endDate)
 
