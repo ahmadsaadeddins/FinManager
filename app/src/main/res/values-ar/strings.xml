@@ -98,6 +98,14 @@
     <string name="failed_to_load_backups">فشل تحميل النسخ الاحتياطية</string>
     <string name="restore_failed">فشلت الاستعادة</string>
     
+    <!-- Local Backup -->
+    <string name="local_backup">نسخة احتياطية محلية</string>
+    <string name="export_database">تصدير قاعدة البيانات</string>
+    <string name="import_database">استيراد قاعدة البيانات</string>
+    <string name="local_backup_description">تصدير قاعدة بياناتك إلى ملف أو استيرادها من ملف تم حفظه مسبقاً</string>
+    <string name="export_db_success">تم تصدير قاعدة البيانات بنجاح</string>
+    <string name="import_db_success">تم استيراد قاعدة البيانات بنجاح. يرجى إعادة تشغيل التطبيق.</string>
+    
     <!-- Sales Archive -->
     <string name="sales_archive">أرشيف المبيعات</string>
     <string name="sales_archive_title">أرشيف المبيعات</string>

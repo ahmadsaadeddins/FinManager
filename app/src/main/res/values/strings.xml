@@ -98,6 +98,14 @@
     <string name="failed_to_load_backups">Failed to load backups</string>
     <string name="restore_failed">Restore failed</string>
     
+    <!-- Local Backup -->
+    <string name="local_backup">Local Backup</string>
+    <string name="export_database">Export Database</string>
+    <string name="import_database">Import Database</string>
+    <string name="local_backup_description">Export your database to a file or import from a previously saved file</string>
+    <string name="export_db_success">Database exported successfully</string>
+    <string name="import_db_success">Database imported successfully. Please restart app.</string>
+    
     <!-- Sales Archive -->
     <string name="sales_archive">Sales Archive</string>
     <string name="sales_archive_title">Sales Archive</string>

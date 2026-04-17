@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.financialmanager.app.R
+import com.financialmanager.app.util.LocalBackupManager
 import javax.inject.Inject
+import android.net.Uri
 
 sealed class BackupUiState {
     object Idle : BackupUiState()
@@ -35,7 +37,8 @@ sealed class BackupUiState {
 class BackupViewModel @Inject constructor(
     private val backupService: GoogleDriveBackupService,
     private val userPreferences: UserPreferences,
-    private val backupThrottler: BackupThrottler
+    private val backupThrottler: BackupThrottler,
+    private val localBackupManager: LocalBackupManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -176,6 +179,36 @@ class BackupViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = BackupUiState.DeleteError(R.string.failed_to_delete_operation, e.message)
             }
+        }
+    }
+
+    fun exportDatabaseLocal(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.CreatingBackup
+            val result = localBackupManager.exportDatabase(uri)
+            result.fold(
+                onSuccess = {
+                    _uiState.value = BackupUiState.BackupSuccess(R.string.export_db_success)
+                },
+                onFailure = { error ->
+                    _uiState.value = BackupUiState.BackupError(R.string.backup_failed, error.message)
+                }
+            )
+        }
+    }
+
+    fun importDatabaseLocal(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.Restoring
+            val result = localBackupManager.importDatabase(uri)
+            result.fold(
+                onSuccess = {
+                    _uiState.value = BackupUiState.RestoreSuccess(R.string.import_db_success)
+                },
+                onFailure = { error ->
+                    _uiState.value = BackupUiState.RestoreError(R.string.restore_failed, error.message)
+                }
+            )
         }
     }
 
